@@ -3,9 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>535105836586-0jgutar02urdugt3dq3bk5150v4nl4qo.apps.googleusercontent.com</string>
+	<string>535105836586-k4jvalr5kuqqtll1nt5rh5a2o62mmjkv.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.535105836586-0jgutar02urdugt3dq3bk5150v4nl4qo</string>
+	<string>com.googleusercontent.apps.535105836586-k4jvalr5kuqqtll1nt5rh5a2o62mmjkv</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>535105836586-tt2ajk1cfu85e3lt3qn9klvp5nhin912.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyA8geFLzX41AAkxSihJ-t7MWaYSym4nSHg</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.blooprtest</string>
+	<string>com.cascade.bloopr</string>
 	<key>PROJECT_ID</key>
 	<string>bloopr-test</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,7 +31,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:535105836586:ios:0526e139a1ee1a641c1553</string>
+	<string>1:535105836586:ios:c210935b4260dcb51c1553</string>
 	<key>DATABASE_URL</key>
 	<string>https://bloopr-test.firebaseio.com</string>
 </dict>
