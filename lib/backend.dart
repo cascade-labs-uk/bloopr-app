@@ -393,8 +393,13 @@ class Backend implements BaseBackend {
       print("[FUNCTION ARGS][Backend.getImageFromLocation] imageLocation: $imageLocation");
     }
 
-    StorageReference imageReference = await _firebaseStorage.getReferenceFromUrl(imageLocation);
-    return imageReference.getData(Constants.MAX_IMAGE_SIZE);
+    if(imageLocation == null) {
+      return null;
+    } else {
+      StorageReference imageReference = await _firebaseStorage
+          .getReferenceFromUrl(imageLocation);
+      return imageReference.getData(Constants.MAX_IMAGE_SIZE);
+    }
   }
 
   Future<Uint8List> getImageFromPostID(String postID) async {

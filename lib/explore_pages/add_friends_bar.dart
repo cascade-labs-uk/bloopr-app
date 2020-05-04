@@ -32,7 +32,7 @@ class _AddFriendsBarState extends State<AddFriendsBar> {
         String friendFirebaseID = friendsSnapshot.documents[counter].documentID;
         String friendName = friendsSnapshot.documents[counter].data['nickname'];
         String profilePictureLocation = friendsSnapshot.documents[counter].data['profile picture URL'];
-        Future<Uint8List> futureProfilePicture = widget.backend.getImageFromLocation(profilePictureLocation);
+        Future<Uint8List> futureProfilePicture = widget.backend.getImageFromLocation(profilePictureLocation!=null?profilePictureLocation:Constants.DEFAULT_PROFILE_PICTURE_LOCATION);
         print(friendName);
         Widget newFriendWidget = new FriendWidget(
           firebaseID: friendFirebaseID,
@@ -93,7 +93,7 @@ class _FriendWidgetState extends State<FriendWidget> {
       future: widget.profilePicture,
       builder: (context, snapshot) {
         Widget child;
-        if(snapshot.hasData) {
+        if(snapshot.hasData && snapshot.data != null) {
           child = Container(
             height: 80,
             width: 80,
