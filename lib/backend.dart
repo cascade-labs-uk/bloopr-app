@@ -17,7 +17,8 @@ abstract class BaseBackend {
   Future<QuerySnapshot> getExplorePosts(int numberOfPosts);
   Future<http.Response> getRecommendedPostIDs();
   Future<List<Future<DocumentSnapshot>>> getRecommendedPosts();
-  Future<List<Future<DocumentSnapshot>>> getSentPosts();
+  Future<List<Future<DocumentSnapshot>>> getSentPosts(); // returns the posts specified in the user's inbox as a List of DocumentSnapshots, and clears the inbox
+  Future<List<String>> getSeenPosts(); // gets the IDs of all posts the user has interacted with from elasticsearch
   Future<QuerySnapshot> getImageComments(String postID);
   Future<String> getFirestoreUserID(String userID);
   Future<String> getOwnUserID();
@@ -182,6 +183,19 @@ class Backend implements BaseBackend {
       return futureDocumentSnapshots;
     });
   }
+
+  Future<List<String>> getSeenPosts() async {
+    if(debugLevel >= 1) {
+      print("[FUNCTION INVOKED] Backend.getSeenPosts");
+    }
+
+    String firestoreID = await getOwnFirestoreUserID();
+    var userInteractionsUrl = 'https://7ee3335fb14040269b50b807934bf5d0.europe-west2.gcp.elastic-cloud.com:9243/interactions/_doc/$firestoreID/_source';
+    return http.get(userInteractionsUrl, headers: {'Authorization':'Basic ZWxhc3RpYzpGcWFweTJhSFRnOGo4QWlSa3Z1NDR4aTA='}).then((response) {
+      List<String> viewedPosts = json.decode(response.body)['viewedPosts'];
+      return viewedPosts;
+    });
+}
 
   Future<QuerySnapshot> getImageComments(String postID) { // TODO: add limit to the number of comments downloaded at once - perhaps learn how to paginate
     if(debugLevel >= 1) {
