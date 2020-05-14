@@ -18,6 +18,7 @@ class Constants {
   static IconData PROFILE_PAGE_ICON = Icons.perm_identity;
 
   static String DEFAULT_PROFILE_PICTURE_LOCATION = 'gs://bloopr-test.appspot.com/app/images/profile_image_placeholder.png';
+  static String EULA_AGREEMENT_TEXT = 'these are the EULA terms';
 
   static TextStyle TEXT_STYLE_HEADER_DARK = GoogleFonts.getFont('Roboto', color: DARK_TEXT, fontSize: 20.0);
   static TextStyle TEXT_STYLE_HEADER_GREY = GoogleFonts.getFont('Roboto', color: GREY_TEXT, fontSize: 20.0);

@@ -6,12 +6,13 @@ import 'package:blooprtest/config.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ViewPostPage extends StatefulWidget {
-  ViewPostPage({this.memeImage, this.memeDocument, this.isSavedPost = false, this.pageTitle});
+  ViewPostPage({this.memeImage, this.memeDocument, this.isSavedPost = false, this.pageTitle, this.memeIndex});
 
   final Image memeImage;
   final DocumentSnapshot memeDocument;
   final bool isSavedPost;
   final String pageTitle;
+  final int memeIndex;
   final BaseBackend backend = new Backend();
 
   @override
@@ -21,6 +22,7 @@ class ViewPostPage extends StatefulWidget {
 class _ViewPostPageState extends State<ViewPostPage> {
   final formKey = new GlobalKey<FormState>();
   bool unsaved = false;
+  String heroTag;
 
   List<DocumentSnapshot> postComments = [];
   String userCommentText;
@@ -67,6 +69,8 @@ class _ViewPostPageState extends State<ViewPostPage> {
   @override
   void initState() {
     super.initState();
+
+    heroTag = widget.memeIndex==null?widget.memeDocument.documentID:widget.memeDocument.documentID + widget.memeIndex.toString();
 
     addCommentCards();
   }
