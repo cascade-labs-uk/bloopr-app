@@ -52,6 +52,7 @@ abstract class BaseBackend {
   void uploadPost(File image, String caption, List<String> tags);
   void unsavePost(String postFirestoreID);
   void sendMeme(String userFirestoreID, String postID);
+  void reportMeme(String postID);
 }
 
 class Backend implements BaseBackend {
@@ -649,5 +650,14 @@ class Backend implements BaseBackend {
     _firestore.collection('users').document(userFirestoreID).updateData({
       'inbox': FieldValue.arrayUnion([sendMap])
     });
+  }
+
+  void reportMeme(String postID) {
+    if(debugLevel >= 1) {
+      print("[FUNCTION INVOKED] Backend.reportMeme");
+      print("[FUNCTION ARGS][Backend.reportMeme] postID: $postID");
+    }
+
+    // TODO: implement report feature
   }
 }

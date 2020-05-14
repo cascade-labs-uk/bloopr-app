@@ -22,6 +22,7 @@ class ViewPostPage extends StatefulWidget {
 class _ViewPostPageState extends State<ViewPostPage> {
   final formKey = new GlobalKey<FormState>();
   bool unsaved = false;
+  bool reported = false;
   String heroTag;
 
   List<DocumentSnapshot> postComments = [];
@@ -145,6 +146,29 @@ class _ViewPostPageState extends State<ViewPostPage> {
                         },
                       ),
                     ),
+                  ),
+                  Visibility(
+                    visible: widget.isSavedPost == false,
+                    child: RaisedButton(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                          side: BorderSide(
+                            color: Constants.DARK_TEXT,
+                            width: 0.5,
+                          )
+                      ),
+                      elevation: 0,
+                      color: Constants.BACKGROUND_COLOR,
+                      child: reported?Text('Reported'):Text('Report'),
+                      onPressed: () {
+                        if(reported == false) {
+                          setState(() {
+                            reported = true;
+                          });
+                          widget.backend.reportMeme(widget.memeDocument.documentID);
+                        }
+                      },
+                    )
                   )
                 ],
               ),
