@@ -231,12 +231,20 @@ class _ProfilePageHeaderState extends State<ProfilePageHeader> {
       future: widget.backend.getProfilePicture(userID),
       builder: (context, snapshot) {
         Widget displayed;
-        if(snapshot.hasData) {
-          displayed = Image.memory(
-            snapshot.data,
-            height: 150,
-            width: 150,
-          );
+        if(snapshot.hasData && !snapshot.hasError) {
+          if(snapshot.data != null) {
+            displayed = Image.memory(
+              snapshot.data,
+              height: 150,
+              width: 150,
+            );
+          } else {
+            displayed = Image.asset(
+              'assets/profile_image_placeholder.png',
+              height: 150,
+              width: 150,
+            );
+          }
         } else {
           displayed = Image.asset(
             'assets/profile_image_placeholder.png',
