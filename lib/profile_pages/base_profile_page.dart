@@ -112,6 +112,7 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
   GridType _currentGrid = GridType.posts;
   List<Future> postFutures = [];
   List<Future> savedPostFutures = [];
+  List<DocumentSnapshot> postDocuments = [];
   List<DocumentSnapshot> savedPostDocuments = [];
   int maxImageSize = 7 * 1024 * 1024;
 
@@ -136,6 +137,12 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
             setState(() {
               postFutures.add(imageReference.getData(maxImageSize));
             });
+        });
+
+        widget.backend.getPost(querySnapshot.documents[counter].data['postID']).then((postSnapshot) {
+          setState(() {
+            postDocuments.add(postSnapshot);
+          });
         });
       }
     });
@@ -261,12 +268,12 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
                       snapshot.data,
                       fit: BoxFit.cover,
                     ),
-                    savedPostDocuments[counter],
+                    isSavedPost?savedPostDocuments[counter]:postDocuments[counter],
                     isSavedPost: isSavedPost,
                   );
                 },
                 child: Hero(
-                  tag: savedPostDocuments[counter].documentID,
+                  tag: isSavedPost?savedPostDocuments[counter].documentID:postDocuments[counter].documentID,
                   child: Image.memory(
                     snapshot.data,
                     height: 100,

@@ -297,7 +297,7 @@ class Backend implements BaseBackend {
       print("[FUNCTION ARGS][Backend.getUserPosts] userID: $userID");
     }
 
-    Future<QuerySnapshot> query = _firestore.collection('posts').where("userID", isEqualTo: userID).getDocuments();
+    Future<QuerySnapshot> query = _firestore.collection('posts').where('posterID', isEqualTo: userID).getDocuments();
     return query;
   }
 
