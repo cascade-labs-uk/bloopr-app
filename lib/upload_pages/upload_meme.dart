@@ -68,10 +68,12 @@ class _UploadMemeState extends State<UploadMeme> {
       String caption = captionController.text;
       String tag = tagController.text;
       try {
-        waterMarkImage(croppedImage).then((file) {
-          widget.backend.uploadPost(file, caption,[tag]);
-          Navigator.pop(context);
-        });
+//        waterMarkImage(croppedImage).then((file) {
+//          widget.backend.uploadPost(file, caption,[tag]);
+//          Navigator.pop(context);
+//        });
+        widget.backend.uploadPost(croppedImage, caption, [tag]);
+        Navigator.pop(context);
       } catch (e, s) {
         Fluttertoast.showToast(msg: "error with upload");
         print(s);
