@@ -39,6 +39,7 @@ abstract class BaseBackend {
   Future<Uint8List> getImageFromLocation(String imageLocation);
   Future<Uint8List> getImageFromPostID(String postID);
   Future<QuerySnapshot> getFollowingFromFirestoreID(String userFirestoreID);
+  Future<bool> amFollowing(String userFirestoreID);
   void postUserComment(String postID, String text);
   void addCommentLike(String parentPostID, String commentID);
   void removeCommentLike(String parentPostID, String commentID);
@@ -434,8 +435,24 @@ class Backend implements BaseBackend {
     }
 
     String ownFirestoreID = await getOwnFirestoreUserID();
-    Future<QuerySnapshot> followingSnapshot = _firestore.collection('users').document(ownFirestoreID).collection('following').where("user firebaseID", isEqualTo: userFirestoreID).getDocuments();
+    Future<QuerySnapshot> followingSnapshot = _firestore.collection('users').document(ownFirestoreID).collection('following').where('userFirestoreID', isEqualTo: userFirestoreID).getDocuments();
     return followingSnapshot;
+  }
+
+  Future<bool> amFollowing(String userFirestoreID) async {
+    if(debugLevel >= 1) {
+      print("[FUNCTION INVOKED] Backend.amFollowing");
+      print("[FUNCTION ARGS][Backend.amFollowing] userFirestoreID: $userFirestoreID");
+    }
+
+    String ownFirestoreUserID = await getOwnFirestoreUserID();
+
+    QuerySnapshot followerQuery = await _firestore.collection('users').document(ownFirestoreUserID).collection('following').where('userFirestoreID', isEqualTo: userFirestoreID).getDocuments();
+    if(followerQuery.documents.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   void postUserComment(String postID, String text) async {

@@ -117,10 +117,10 @@ class FollowingCard extends StatefulWidget {
 
 class _followingCardState extends State<FollowingCard> {
 
-  bool unfollowed;
+  bool following;
 
   void toggleFollow(String userFirestoreID) {
-    if(unfollowed) {
+    if(following) {
       widget.backend.unfollow(userFirestoreID);
     } else {
       widget.backend.addFollow(userFirestoreID);
@@ -132,7 +132,17 @@ class _followingCardState extends State<FollowingCard> {
     super.initState();
 
     setState(() {
-      unfollowed = false;
+      following = false;
+    });
+
+    updateFollowing();
+  }
+
+  void updateFollowing() {
+    widget.backend.amFollowing(widget.documentSnapshot.data["userFirestoreID"]).then((amFollowing) {
+      setState(() {
+        following = amFollowing;
+      });
     });
   }
 
@@ -146,18 +156,18 @@ class _followingCardState extends State<FollowingCard> {
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(5.0),
               side: BorderSide(
-                color: unfollowed?Constants.HIGHLIGHT_COLOR:Constants.DARK_TEXT,
+                color: following?Constants.HIGHLIGHT_COLOR:Constants.DARK_TEXT,
                 width: 0.5,
               )
           ),
           elevation: 0,
           color: Constants.BACKGROUND_COLOR,
-          child: unfollowed?Text('Follow'):Text('Unfollow'),
+          child: following?Text('Unfollow'):Text('Follow'),
           onPressed: () {
+            toggleFollow(widget.documentSnapshot.data['userFirestoreID']);
             setState(() {
-              unfollowed = !unfollowed;
+              following = !following;
             });
-            toggleFollow(widget.documentSnapshot.data["user firestoreID"]);
           },
         ),
         leading: FutureBuilder(
