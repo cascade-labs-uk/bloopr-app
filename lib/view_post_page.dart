@@ -56,7 +56,11 @@ class _ViewPostPageState extends State<ViewPostPage> {
   void addCommentCards() {
     widget.backend.getImageComments(widget.memeDocument.documentID).then((commentsSnapshot) {
       setState(() {
-        postComments = commentsSnapshot.documents;
+        for(int counter = 0; counter < commentsSnapshot.documents.length; counter++) {
+          if(commentsSnapshot.documents[counter].exists) {
+            postComments.add(commentsSnapshot.documents[counter]);
+          }
+        }
       });
     });
   }
@@ -104,7 +108,7 @@ class _ViewPostPageState extends State<ViewPostPage> {
                     future: widget.backend.getProfilePicture(widget.memeDocument.data['posterID']),
                     builder: (context, snapshot) {
                       Image displayedImage;
-                      if(snapshot.hasData) {
+                      if(snapshot.hasData && snapshot.data != null) {
                         displayedImage = Image.memory(
                           snapshot.data,
                           height: 37,
