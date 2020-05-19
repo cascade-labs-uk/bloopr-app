@@ -37,8 +37,9 @@ dependencies:
   google_fonts: ^0.6.2
   getflutter: ^1.0.11
   url_launcher: ^4.0.3
+  flutter_image_compress: ^0.6.8
 
-  # allows for toast creation across platoforms
+  # allows for toast creation across platforms
   fluttertoast: ^4.0.0
 
   # The following adds the Cupertino Icons font to your application.
