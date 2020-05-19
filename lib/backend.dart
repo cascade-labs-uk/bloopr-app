@@ -498,20 +498,31 @@ class Backend implements BaseBackend {
     });
   }
 
-  void addLike(String postID) async {
+  void addLike(String postID, {String posterFirestoreID}) async {
     if(debugLevel >= 1) {
       print("[FUNCTION INVOKED] Backend.addLike");
       print("[FUNCTION ARGS][Backend.addLike] postID: $postID");
     }
 
-    String userID = await _auth.currentUser();
-    String firestoreUserID = await getFirestoreUserID(userID);
+    String firestoreUserID = await getOwnFirestoreUserID();
     _firestore.collection('users').document(firestoreUserID).collection('interactions').add({
       'postID': postID,
       'like': true,
       'dislike': false,
       'save': false
     }); // TODO: add .catchError() to addLike
+
+    if(posterFirestoreID != null) {
+      _firestore.collection('users').document(firestoreUserID).updateData({
+        'right swipes': FieldValue.increment(1)
+      });
+    } else {
+      DocumentSnapshot post = await getPost(postID);
+      posterFirestoreID = post.data['posterFirestoreID'];
+      _firestore.collection('users').document(firestoreUserID).updateData({
+        'right swipes': FieldValue.increment(1)
+      });
+    }
   }
 
   void addDislike(String postID) async {
@@ -572,6 +583,11 @@ class Backend implements BaseBackend {
         'user nickname': userDocument.data['nickname'],
         'user profile picture URL': userDocument.data['profile picture URL']
       });
+
+      // updates the follower number of the user you just followed
+      _firestore.collection('users').document(userFirestoreID).updateData({
+        'follower number': FieldValue.increment(1)
+      });
     }
   }
 
@@ -581,7 +597,7 @@ class Backend implements BaseBackend {
       print("[FUNCTION ARGS][Backend.unfollow] userFirestoreID: $userFirestoreID");
     }
 
-    String ownFirestoreID = await getOwnFirestoreUserID()
+    String ownFirestoreID = await getOwnFirestoreUserID();
     if(ownFirestoreID != userFirestoreID) { // checks that user is not trying to unfollow themselves
       QuerySnapshot followerSnapshot = await _firestore.collection('users')
           .document(userFirestoreID).collection('followers').where(
@@ -591,14 +607,17 @@ class Backend implements BaseBackend {
           .document(ownFirestoreID).collection('following').where(
           "userFirestoreID", isEqualTo: userFirestoreID)
           .getDocuments();
-      if (followingSnapshot.documents.length >
-          0) { //TODO: split this statement up
+      if (followingSnapshot.documents.length > 0) { // checks the that 'following' user is actually following the user before removing them
         _firestore.collection('users').document(userFirestoreID).collection(
             'followers')
             .document(followerSnapshot.documents[0].documentID)
             .delete();
+
+        _firestore.collection('users').document(userFirestoreID).updateData({
+          'follower number': FieldValue.increment(-1)
+        });
       } // TODO: add .catchError() to unfollow
-      if (followerSnapshot.documents.length > 0) {
+      if (followerSnapshot.documents.length > 0) { // checks that 'followed' user is actually followed by the user before removing them
         _firestore.collection('users').document(ownFirestoreID).collection(
             'following')
             .document(followingSnapshot.documents[0].documentID)
