@@ -74,7 +74,6 @@ class _ViewPostPageState extends State<ViewPostPage> {
   @override
   void initState() {
     super.initState();
-
     heroTag = widget.memeIndex==null?widget.memeDocument.documentID:widget.memeDocument.documentID + widget.memeIndex.toString();
 
     addCommentCards();

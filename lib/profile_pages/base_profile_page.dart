@@ -110,8 +110,8 @@ class _gridSelectSliverDelegate extends SliverPersistentHeaderDelegate {
 
 class _BaseProfilePageState extends State<BaseProfilePage> {
   GridType _currentGrid = GridType.posts;
-  List<Future> postFutures = [];
-  List<Future> savedPostFutures = [];
+  List<Future> postImageFutures = [];
+  List<Future> savedPostImageFutures = [];
   List<DocumentSnapshot> postDocuments = [];
   List<DocumentSnapshot> savedPostDocuments = [];
   int maxImageSize = 7 * 1024 * 1024;
@@ -135,14 +135,9 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
         FirebaseStorage.instance.getReferenceFromUrl(querySnapshot.documents[counter].data['imageURL'])
           .then((imageReference) {
             setState(() {
-              postFutures.add(imageReference.getData(maxImageSize));
+              postImageFutures.add(imageReference.getData(maxImageSize));
+              postDocuments.add(querySnapshot.documents[counter]);
             });
-        });
-
-        widget.backend.getPost(querySnapshot.documents[counter].data['postID']).then((postSnapshot) {
-          setState(() {
-            postDocuments.add(postSnapshot);
-          });
         });
       }
     });
@@ -150,15 +145,12 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
     widget.backend.getUserSaveInteractions(widget.displayedUserFirestoreID).then((querySnapshot) {
       print(querySnapshot.documents[0].data);
       for (int counter = 0; counter < querySnapshot.documents.length; counter++) {
-        setState(() {
-          savedPostFutures.add(
-              widget.backend.getImageFromPostID(querySnapshot.documents[counter].data['postID'])
-          );
-        });
-
-        widget.backend.getPost(querySnapshot.documents[counter].data['postID']).then((postSnapshot) {
+        widget.backend.getPost(querySnapshot.documents[counter].data['postID']).then((postDocument) {
           setState(() {
-            savedPostDocuments.add(postSnapshot);
+            savedPostImageFutures.add(
+                widget.backend.getImageFromPostID(postDocument.documentID)
+            );
+            savedPostDocuments.add(postDocument);
           });
         });
       }
@@ -205,7 +197,7 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
 
   SliverGrid buildImageGrid() {
     if(_currentGrid == GridType.posts) {
-      if(postFutures.length == 0) {
+      if(postImageFutures.length == 0) {
         return SliverGrid.count(
           crossAxisCount: 1,
           children: [Container(
@@ -223,11 +215,11 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
       } else {
         return SliverGrid.count(
           crossAxisCount: 3,
-          children: gridChildren(postFutures),
+          children: gridChildren(postImageFutures),
         );
       }
     } else if(_currentGrid == GridType.savedMemes) {
-      if(savedPostFutures.length == 0) {
+      if(savedPostImageFutures.length == 0) {
         return SliverGrid.count(
           crossAxisCount: 1,
           children: [Container(
@@ -244,7 +236,7 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
       } else {
         return SliverGrid.count(
           crossAxisCount: 3,
-          children: gridChildren(savedPostFutures, isSavedPost: true),
+          children: gridChildren(savedPostImageFutures, isSavedPost: true),
         );
       }
     }
