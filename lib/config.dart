@@ -11,7 +11,9 @@ class Constants {
   static Color DARK_TEXT = Colors.black;
   static Color LIGHT_TEXT = Colors.white;
   static Color GREY_TEXT = Colors.grey[500];
+
   static int MAX_IMAGE_SIZE = 7 * 1024 * 1024;
+  static int SWIPE_ANIMATION_DURATION = 400; // length of full swipe animation in milliseconds
 
   static IconData EXPLORE_PAGE_ICON = Icons.search;
   static IconData SWIPE_PAGE_ICON = Icons.content_copy;

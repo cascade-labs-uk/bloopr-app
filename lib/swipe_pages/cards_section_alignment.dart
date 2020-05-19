@@ -83,7 +83,7 @@ class _CardsSectionState extends State<CardsSectionAlignment>
     // Init the animation controller
     _swipeController =
         AnimationController(
-            duration: Duration(milliseconds: 700), vsync: this);
+            duration: Duration(milliseconds: Constants.SWIPE_ANIMATION_DURATION), vsync: this);
     _swipeController.addListener(() => setState(() {}));
     _swipeController.addStatusListener((
         AnimationStatus status) { // calls when the animation is done
