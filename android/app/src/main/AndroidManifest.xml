@@ -9,8 +9,7 @@
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="bloopr"
-        android:icon="@mipmap/bloopr_launcher"
-        android:usesClearTextTraffic="true">
+        android:icon="@mipmap/bloopr_launcher">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

@@ -1,3 +1,5 @@
+//import 'dart:html';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,6 +31,84 @@ class _LoginPageState extends State<LoginPage> {
   String _password;
   String _confirmPassword;
   FormType _formType = FormType.login;
+
+  void openPolicyDisclaimer() {
+    showDialog(
+      context: context,
+      child: AlertDialog(
+        title: Text("EULA"),
+        content: Container(
+          width: MediaQuery.of(context).size.width * 0.90,
+          height: MediaQuery.of(context).size.height * 0.90,
+          child: Column(
+            children: <Widget>[
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: Text(
+                      Constants.EULA_AGREEMENT_TEXT
+                  ),
+                ),
+              ),
+              RaisedButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                    side: BorderSide(
+                      color: Constants.DARK_TEXT,
+                      width: 0.5,
+                    )
+                ),
+                elevation: 0,
+                color: Constants.BACKGROUND_COLOR,
+                child: Text('By clicking you agree to the above policy'),
+                onPressed: () {
+                  Navigator.pop(context);
+                  validateAndSubmit();
+                },
+              )
+            ],
+          )
+        ),
+      )
+    );
+    @override
+    Widget build(BuildContext context) {
+      return AlertDialog(
+        title: Text("EULA"),
+        content: Container(
+          width: MediaQuery.of(context).size.width * 0.90,
+          height: MediaQuery.of(context).size.height * 0.90,
+          child: Column(
+            children: <Widget>[
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: Text(
+                    Constants.EULA_AGREEMENT_TEXT
+                  ),
+                ),
+              ),
+              RaisedButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                    side: BorderSide(
+                      color: Constants.DARK_TEXT,
+                      width: 0.5,
+                    )
+                ),
+                elevation: 0,
+                color: Constants.BACKGROUND_COLOR,
+                child: Text('By clicking you agree to the above policy'),
+                onPressed: () {
+                  validateAndSubmit();
+                },
+              )
+            ],
+          )
+        ),
+      );
+    }
+  }
 
   bool validateAndSave() {
     final form = formKey.currentState;
@@ -474,7 +554,7 @@ class _LoginPageState extends State<LoginPage> {
             minWidth: 220,
             child: RaisedButton(
               elevation: 0,
-              onPressed: validateAndSubmit,
+              onPressed: openPolicyDisclaimer,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(80.0)),
               padding: EdgeInsets.all(0.0),
               child: Ink(

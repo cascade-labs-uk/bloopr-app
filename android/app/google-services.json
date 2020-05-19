@@ -43,7 +43,7 @@
               "client_id": "535105836586-0jgutar02urdugt3dq3bk5150v4nl4qo.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.blooprtest"
+                "bundle_id": "com.cascade.bloopr"
               }
             }
           ]
@@ -54,7 +54,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:535105836586:android:3707ec58f9bb5ec01c1553",
         "android_client_info": {
-          "package_name": "com.example.blooprtest"
+          "package_name": "com.cascade.bloopr"
         }
       },
       "oauth_client": [
@@ -62,7 +62,7 @@
           "client_id": "535105836586-5bskq8mr4f91nlp8gkt2skmoce40fjuh.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.blooprtest",
+            "package_name": "com.cascade.bloopr",
             "certificate_hash": "076121879db8a6ea24f676dd8adc975770f2d8fd"
           }
         },
@@ -87,7 +87,7 @@
               "client_id": "535105836586-0jgutar02urdugt3dq3bk5150v4nl4qo.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.blooprtest"
+                "bundle_id": "com.cascade.bloopr"
               }
             }
           ]

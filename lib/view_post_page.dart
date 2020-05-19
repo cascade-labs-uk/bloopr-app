@@ -6,12 +6,13 @@ import 'package:blooprtest/config.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ViewPostPage extends StatefulWidget {
-  ViewPostPage({this.memeImage, this.memeDocument, this.isSavedPost = false, this.pageTitle});
+  ViewPostPage({this.memeImage, this.memeDocument, this.isSavedPost = false, this.pageTitle, this.memeIndex});
 
   final Image memeImage;
   final DocumentSnapshot memeDocument;
   final bool isSavedPost;
   final String pageTitle;
+  final int memeIndex;
   final BaseBackend backend = new Backend();
 
   @override
@@ -21,6 +22,8 @@ class ViewPostPage extends StatefulWidget {
 class _ViewPostPageState extends State<ViewPostPage> {
   final formKey = new GlobalKey<FormState>();
   bool unsaved = false;
+  bool reported = false;
+  String heroTag;
 
   List<DocumentSnapshot> postComments = [];
   String userCommentText;
@@ -53,7 +56,11 @@ class _ViewPostPageState extends State<ViewPostPage> {
   void addCommentCards() {
     widget.backend.getImageComments(widget.memeDocument.documentID).then((commentsSnapshot) {
       setState(() {
-        postComments = commentsSnapshot.documents;
+        for(int counter = 0; counter < commentsSnapshot.documents.length; counter++) {
+          if(commentsSnapshot.documents[counter].exists) {
+            postComments.add(commentsSnapshot.documents[counter]);
+          }
+        }
       });
     });
   }
@@ -67,6 +74,7 @@ class _ViewPostPageState extends State<ViewPostPage> {
   @override
   void initState() {
     super.initState();
+    heroTag = widget.memeIndex==null?widget.memeDocument.documentID:widget.memeDocument.documentID + widget.memeIndex.toString();
 
     addCommentCards();
   }
@@ -99,7 +107,7 @@ class _ViewPostPageState extends State<ViewPostPage> {
                     future: widget.backend.getProfilePicture(widget.memeDocument.data['posterID']),
                     builder: (context, snapshot) {
                       Image displayedImage;
-                      if(snapshot.hasData) {
+                      if(snapshot.hasData && snapshot.data != null) {
                         displayedImage = Image.memory(
                           snapshot.data,
                           height: 37,
@@ -141,6 +149,29 @@ class _ViewPostPageState extends State<ViewPostPage> {
                         },
                       ),
                     ),
+                  ),
+                  Visibility(
+                    visible: widget.isSavedPost == false,
+                    child: RaisedButton(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                          side: BorderSide(
+                            color: Constants.DARK_TEXT,
+                            width: 0.5,
+                          )
+                      ),
+                      elevation: 0,
+                      color: Constants.BACKGROUND_COLOR,
+                      child: reported?Text('Reported'):Text('Report'),
+                      onPressed: () {
+                        if(reported == false) {
+                          setState(() {
+                            reported = true;
+                          });
+                          widget.backend.reportMeme(widget.memeDocument.documentID);
+                        }
+                      },
+                    )
                   )
                 ],
               ),

@@ -17,7 +17,8 @@ abstract class BaseBackend {
   Future<QuerySnapshot> getExplorePosts(int numberOfPosts);
   Future<http.Response> getRecommendedPostIDs();
   Future<List<Future<DocumentSnapshot>>> getRecommendedPosts();
-  Future<List<Future<DocumentSnapshot>>> getSentPosts();
+  Future<List<Future<DocumentSnapshot>>> getSentPosts(); // returns the posts specified in the user's inbox as a List of DocumentSnapshots, and clears the inbox
+  Future<List<String>> getSeenPosts(); // gets the IDs of all posts the user has interacted with from elasticsearch
   Future<QuerySnapshot> getImageComments(String postID);
   Future<String> getFirestoreUserID(String userID);
   Future<String> getOwnUserID();
@@ -38,6 +39,7 @@ abstract class BaseBackend {
   Future<Uint8List> getImageFromLocation(String imageLocation);
   Future<Uint8List> getImageFromPostID(String postID);
   Future<QuerySnapshot> getFollowingFromFirestoreID(String userFirestoreID);
+  Future<bool> amFollowing(String userFirestoreID);
   void postUserComment(String postID, String text);
   void addCommentLike(String parentPostID, String commentID);
   void removeCommentLike(String parentPostID, String commentID);
@@ -51,6 +53,7 @@ abstract class BaseBackend {
   void uploadPost(File image, String caption, List<String> tags);
   void unsavePost(String postFirestoreID);
   void sendMeme(String userFirestoreID, String postID);
+  void reportMeme(String postID);
 }
 
 class Backend implements BaseBackend {
@@ -183,6 +186,19 @@ class Backend implements BaseBackend {
     });
   }
 
+  Future<List<String>> getSeenPosts() async {
+    if(debugLevel >= 1) {
+      print("[FUNCTION INVOKED] Backend.getSeenPosts");
+    }
+
+    String firestoreID = await getOwnFirestoreUserID();
+    var userInteractionsUrl = 'https://7ee3335fb14040269b50b807934bf5d0.europe-west2.gcp.elastic-cloud.com:9243/interactions/_doc/$firestoreID/_source';
+    return http.get(userInteractionsUrl, headers: {'Authorization':'Basic ZWxhc3RpYzpGcWFweTJhSFRnOGo4QWlSa3Z1NDR4aTA='}).then((response) {
+      List<String> viewedPosts = json.decode(response.body)['viewedPosts'];
+      return viewedPosts;
+    });
+}
+
   Future<QuerySnapshot> getImageComments(String postID) { // TODO: add limit to the number of comments downloaded at once - perhaps learn how to paginate
     if(debugLevel >= 1) {
       print("[FUNCTION INVOKED] Backend.getImageComments");
@@ -282,7 +298,7 @@ class Backend implements BaseBackend {
       print("[FUNCTION ARGS][Backend.getUserPosts] userID: $userID");
     }
 
-    Future<QuerySnapshot> query = _firestore.collection('posts').where("userID", isEqualTo: userID).getDocuments();
+    Future<QuerySnapshot> query = _firestore.collection('posts').where('posterID', isEqualTo: userID).getDocuments();
     return query;
   }
 
@@ -419,8 +435,24 @@ class Backend implements BaseBackend {
     }
 
     String ownFirestoreID = await getOwnFirestoreUserID();
-    Future<QuerySnapshot> followingSnapshot = _firestore.collection('users').document(ownFirestoreID).collection('following').where("user firebaseID", isEqualTo: userFirestoreID).getDocuments();
+    Future<QuerySnapshot> followingSnapshot = _firestore.collection('users').document(ownFirestoreID).collection('following').where('userFirestoreID', isEqualTo: userFirestoreID).getDocuments();
     return followingSnapshot;
+  }
+
+  Future<bool> amFollowing(String userFirestoreID) async {
+    if(debugLevel >= 1) {
+      print("[FUNCTION INVOKED] Backend.amFollowing");
+      print("[FUNCTION ARGS][Backend.amFollowing] userFirestoreID: $userFirestoreID");
+    }
+
+    String ownFirestoreUserID = await getOwnFirestoreUserID();
+
+    QuerySnapshot followerQuery = await _firestore.collection('users').document(ownFirestoreUserID).collection('following').where('userFirestoreID', isEqualTo: userFirestoreID).getDocuments();
+    if(followerQuery.documents.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   void postUserComment(String postID, String text) async {
@@ -466,20 +498,31 @@ class Backend implements BaseBackend {
     });
   }
 
-  void addLike(String postID) async {
+  void addLike(String postID, {String posterFirestoreID}) async {
     if(debugLevel >= 1) {
       print("[FUNCTION INVOKED] Backend.addLike");
       print("[FUNCTION ARGS][Backend.addLike] postID: $postID");
     }
 
-    String userID = await _auth.currentUser();
-    String firestoreUserID = await getFirestoreUserID(userID);
+    String firestoreUserID = await getOwnFirestoreUserID();
     _firestore.collection('users').document(firestoreUserID).collection('interactions').add({
       'postID': postID,
       'like': true,
       'dislike': false,
       'save': false
     }); // TODO: add .catchError() to addLike
+
+    if(posterFirestoreID != null) {
+      _firestore.collection('users').document(firestoreUserID).updateData({
+        'right swipes': FieldValue.increment(1)
+      });
+    } else {
+      DocumentSnapshot post = await getPost(postID);
+      posterFirestoreID = post.data['posterFirestoreID'];
+      _firestore.collection('users').document(firestoreUserID).updateData({
+        'right swipes': FieldValue.increment(1)
+      });
+    }
   }
 
   void addDislike(String postID) async {
@@ -521,18 +564,31 @@ class Backend implements BaseBackend {
     }
 
     String ownFirestoreID = await getOwnFirestoreUserID();
-    DocumentSnapshot ownDocument = await _firestore.collection('users').document(ownFirestoreID).get();
-    DocumentSnapshot userDocument = await _firestore.collection('users').document(userFirestoreID).get();
-    _firestore.collection('users').document(userFirestoreID).collection('followers').add({
-      'userFirestoreID': ownDocument.documentID,
-      'user nickname': ownDocument.data['nickname'],
-      'user profile picture URL': ownDocument.data['profile picture URL']
-    }); // TODO: add .catchError() to addfollow
-    _firestore.collection('users').document(ownFirestoreID).collection('following').add({
-      'userFirestoreID': userDocument.documentID,
-      'user nickname': userDocument.data['nickname'],
-      'user profile picture URL': userDocument.data['profile picture URL']
-    });
+    if(ownFirestoreID != userFirestoreID) { // checks that a user is not trying to follow themselves
+      DocumentSnapshot ownDocument = await _firestore.collection('users')
+          .document(ownFirestoreID)
+          .get();
+      DocumentSnapshot userDocument = await _firestore.collection('users')
+          .document(userFirestoreID)
+          .get();
+      _firestore.collection('users').document(userFirestoreID).collection(
+          'followers').add({
+        'userFirestoreID': ownDocument.documentID,
+        'user nickname': ownDocument.data['nickname'],
+        'user profile picture URL': ownDocument.data['profile picture URL']
+      }); // TODO: add .catchError() to addfollow
+      _firestore.collection('users').document(ownFirestoreID).collection(
+          'following').add({
+        'userFirestoreID': userDocument.documentID,
+        'user nickname': userDocument.data['nickname'],
+        'user profile picture URL': userDocument.data['profile picture URL']
+      });
+
+      // updates the follower number of the user you just followed
+      _firestore.collection('users').document(userFirestoreID).updateData({
+        'follower number': FieldValue.increment(1)
+      });
+    }
   }
 
   void unfollow(String userFirestoreID) async {
@@ -542,19 +598,31 @@ class Backend implements BaseBackend {
     }
 
     String ownFirestoreID = await getOwnFirestoreUserID();
-    QuerySnapshot followerSnapshot = await _firestore.collection('users').document(userFirestoreID).collection('followers').where("userFirestoreID", isEqualTo: ownFirestoreID).getDocuments();
-    QuerySnapshot followingSnapshot = await _firestore.collection('users').document(ownFirestoreID).collection('following').where("userFirestoreID", isEqualTo: userFirestoreID).getDocuments();
-    if(followingSnapshot.documents.length > 0) { //TODO: split this statement up
-      _firestore.collection('users').document(userFirestoreID).collection(
-          'followers')
-          .document(followerSnapshot.documents[0].documentID)
-          .delete();
-    } // TODO: add .catchError() to unfollow
-    if (followerSnapshot.documents.length > 0) {
-      _firestore.collection('users').document(ownFirestoreID).collection(
-          'following')
-          .document(followingSnapshot.documents[0].documentID)
-          .delete();
+    if(ownFirestoreID != userFirestoreID) { // checks that user is not trying to unfollow themselves
+      QuerySnapshot followerSnapshot = await _firestore.collection('users')
+          .document(userFirestoreID).collection('followers').where(
+          "userFirestoreID", isEqualTo: ownFirestoreID)
+          .getDocuments();
+      QuerySnapshot followingSnapshot = await _firestore.collection('users')
+          .document(ownFirestoreID).collection('following').where(
+          "userFirestoreID", isEqualTo: userFirestoreID)
+          .getDocuments();
+      if (followingSnapshot.documents.length > 0) { // checks the that 'following' user is actually following the user before removing them
+        _firestore.collection('users').document(userFirestoreID).collection(
+            'followers')
+            .document(followerSnapshot.documents[0].documentID)
+            .delete();
+
+        _firestore.collection('users').document(userFirestoreID).updateData({
+          'follower number': FieldValue.increment(-1)
+        });
+      } // TODO: add .catchError() to unfollow
+      if (followerSnapshot.documents.length > 0) { // checks that 'followed' user is actually followed by the user before removing them
+        _firestore.collection('users').document(ownFirestoreID).collection(
+            'following')
+            .document(followingSnapshot.documents[0].documentID)
+            .delete();
+      }
     }
   }
   
@@ -635,5 +703,14 @@ class Backend implements BaseBackend {
     _firestore.collection('users').document(userFirestoreID).updateData({
       'inbox': FieldValue.arrayUnion([sendMap])
     });
+  }
+
+  void reportMeme(String postID) {
+    if(debugLevel >= 1) {
+      print("[FUNCTION INVOKED] Backend.reportMeme");
+      print("[FUNCTION ARGS][Backend.reportMeme] postID: $postID");
+    }
+
+    // TODO: implement report feature
   }
 }

@@ -38,8 +38,8 @@ class _ExploreGridState extends State<ExploreGrid> {
     });
   }
 
-  Future openViewMemePage(context, memeImage, memeDocument) async {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ViewPostPage(memeDocument: memeDocument, memeImage: memeImage, pageTitle: "Explore",)));
+  Future openViewMemePage(context, memeImage, memeDocument, memeIndex) async {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ViewPostPage(memeDocument: memeDocument, memeImage: memeImage, pageTitle: "Explore",memeIndex: memeIndex,)));
   }
 
   void addExplorePosts(int number) {
@@ -70,6 +70,8 @@ class _ExploreGridState extends State<ExploreGrid> {
   }
 
   Widget gridTile(DocumentSnapshot postDocument, int index) {
+    String heroTag = postDocument.documentID + index.toString();
+
     return FutureBuilder(
       future: widget.backend.getImageFromLocation(postDocument.data['imageURL']),
       builder: (context, snapshot) {
@@ -80,11 +82,12 @@ class _ExploreGridState extends State<ExploreGrid> {
               openViewMemePage(
                 context,
                 Image.memory(snapshot.data),
-                postDocument
+                postDocument,
+                index
               );
             },
             child: Hero(
-              tag: postDocument.documentID,
+              tag: heroTag,
               child: Image.memory(
                 snapshot.data,
                 height: 100,

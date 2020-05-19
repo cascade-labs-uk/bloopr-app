@@ -16,6 +16,7 @@ class ProfileCardAlignment extends StatefulWidget {
   final String postID;
   Uint8List imageBytes;
   Widget displayImage;
+  BaseBackend backend = new Backend();
 
   @override
   _ProfileCardAlignmentState createState() => _ProfileCardAlignmentState();
@@ -35,6 +36,7 @@ class _ProfileCardAlignmentState extends State<ProfileCardAlignment> {
   List<CommentCard> commentCards = [];
   BaseBackend backend = new Backend();
   String userCommentText;
+  bool reported = false;
 
 
   @override
@@ -269,7 +271,7 @@ class _ProfileCardAlignmentState extends State<ProfileCardAlignment> {
       return Column(
         children: <Widget>[
           Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Container(
                 color: Constants.BACKGROUND_COLOR,
@@ -281,6 +283,29 @@ class _ProfileCardAlignmentState extends State<ProfileCardAlignment> {
                   ),
                 )
               ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                      side: BorderSide(
+                        color: Constants.DARK_TEXT,
+                        width: 0.5,
+                      )
+                  ),
+                  elevation: 0,
+                  color: Constants.BACKGROUND_COLOR,
+                  child: reported?Text('Reported'):Text('Report'),
+                  onPressed: () {
+                    if(reported == false) {
+                      setState(() {
+                        reported = true;
+                      });
+                      widget.backend.reportMeme(widget.postID);
+                    }
+                  },
+                ),
+              )
             ],
           ),
           Expanded(
