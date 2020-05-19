@@ -553,18 +553,26 @@ class Backend implements BaseBackend {
     }
 
     String ownFirestoreID = await getOwnFirestoreUserID();
-    DocumentSnapshot ownDocument = await _firestore.collection('users').document(ownFirestoreID).get();
-    DocumentSnapshot userDocument = await _firestore.collection('users').document(userFirestoreID).get();
-    _firestore.collection('users').document(userFirestoreID).collection('followers').add({
-      'userFirestoreID': ownDocument.documentID,
-      'user nickname': ownDocument.data['nickname'],
-      'user profile picture URL': ownDocument.data['profile picture URL']
-    }); // TODO: add .catchError() to addfollow
-    _firestore.collection('users').document(ownFirestoreID).collection('following').add({
-      'userFirestoreID': userDocument.documentID,
-      'user nickname': userDocument.data['nickname'],
-      'user profile picture URL': userDocument.data['profile picture URL']
-    });
+    if(ownFirestoreID != userFirestoreID) { // checks that a user is not trying to follow themselves
+      DocumentSnapshot ownDocument = await _firestore.collection('users')
+          .document(ownFirestoreID)
+          .get();
+      DocumentSnapshot userDocument = await _firestore.collection('users')
+          .document(userFirestoreID)
+          .get();
+      _firestore.collection('users').document(userFirestoreID).collection(
+          'followers').add({
+        'userFirestoreID': ownDocument.documentID,
+        'user nickname': ownDocument.data['nickname'],
+        'user profile picture URL': ownDocument.data['profile picture URL']
+      }); // TODO: add .catchError() to addfollow
+      _firestore.collection('users').document(ownFirestoreID).collection(
+          'following').add({
+        'userFirestoreID': userDocument.documentID,
+        'user nickname': userDocument.data['nickname'],
+        'user profile picture URL': userDocument.data['profile picture URL']
+      });
+    }
   }
 
   void unfollow(String userFirestoreID) async {
@@ -573,20 +581,29 @@ class Backend implements BaseBackend {
       print("[FUNCTION ARGS][Backend.unfollow] userFirestoreID: $userFirestoreID");
     }
 
-    String ownFirestoreID = await getOwnFirestoreUserID();
-    QuerySnapshot followerSnapshot = await _firestore.collection('users').document(userFirestoreID).collection('followers').where("userFirestoreID", isEqualTo: ownFirestoreID).getDocuments();
-    QuerySnapshot followingSnapshot = await _firestore.collection('users').document(ownFirestoreID).collection('following').where("userFirestoreID", isEqualTo: userFirestoreID).getDocuments();
-    if(followingSnapshot.documents.length > 0) { //TODO: split this statement up
-      _firestore.collection('users').document(userFirestoreID).collection(
-          'followers')
-          .document(followerSnapshot.documents[0].documentID)
-          .delete();
-    } // TODO: add .catchError() to unfollow
-    if (followerSnapshot.documents.length > 0) {
-      _firestore.collection('users').document(ownFirestoreID).collection(
-          'following')
-          .document(followingSnapshot.documents[0].documentID)
-          .delete();
+    String ownFirestoreID = await getOwnFirestoreUserID()
+    if(ownFirestoreID != userFirestoreID) { // checks that user is not trying to unfollow themselves
+      QuerySnapshot followerSnapshot = await _firestore.collection('users')
+          .document(userFirestoreID).collection('followers').where(
+          "userFirestoreID", isEqualTo: ownFirestoreID)
+          .getDocuments();
+      QuerySnapshot followingSnapshot = await _firestore.collection('users')
+          .document(ownFirestoreID).collection('following').where(
+          "userFirestoreID", isEqualTo: userFirestoreID)
+          .getDocuments();
+      if (followingSnapshot.documents.length >
+          0) { //TODO: split this statement up
+        _firestore.collection('users').document(userFirestoreID).collection(
+            'followers')
+            .document(followerSnapshot.documents[0].documentID)
+            .delete();
+      } // TODO: add .catchError() to unfollow
+      if (followerSnapshot.documents.length > 0) {
+        _firestore.collection('users').document(ownFirestoreID).collection(
+            'following')
+            .document(followingSnapshot.documents[0].documentID)
+            .delete();
+      }
     }
   }
   
