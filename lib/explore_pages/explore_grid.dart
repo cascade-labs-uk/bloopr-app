@@ -38,8 +38,8 @@ class _ExploreGridState extends State<ExploreGrid> {
     });
   }
 
-  Future openViewMemePage(context, memeImage, memeDocument, memeIndex) async {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ViewPostPage(memeDocument: memeDocument, memeImage: memeImage, pageTitle: "Explore",memeIndex: memeIndex,)));
+  Future openViewMemePage(BuildContext context, Image memeImage, DocumentSnapshot memeDocument, String heroTag) async {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ViewPostPage(memeDocument: memeDocument, memeImage: memeImage, pageTitle: "Explore",tag: heroTag,)));
   }
 
   void addExplorePosts(int number) {
@@ -83,7 +83,7 @@ class _ExploreGridState extends State<ExploreGrid> {
                 context,
                 Image.memory(snapshot.data),
                 postDocument,
-                index
+                heroTag
               );
             },
             child: Hero(
