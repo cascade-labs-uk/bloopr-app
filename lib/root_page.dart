@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:blooprtest/swipe_pages/swipe_page.dart';
 import 'package:blooprtest/profile_pages/my_profile_page.dart';
 import 'package:blooprtest/explore_pages/explore_page.dart';
+import 'package:blooprtest/load_speed_test.dart';
 import 'package:blooprtest/error_page.dart';
+import 'package:blooprtest/login_pages/root_login_page.dart';
 import 'auth.dart';
-import 'login_page.dart';
 
 class RootPage extends StatefulWidget {
   RootPage({this.auth});
@@ -23,7 +24,8 @@ enum AuthStatus {
 enum Pages {
   swipe,
   profile,
-  discover
+  discover,
+  test
 }
 
 class _RootPageState extends State<RootPage> {
@@ -100,6 +102,8 @@ class _RootPageState extends State<RootPage> {
           toMyProfilePage: _toMyProfilePage,
           toSwipePage: _toSwipePage,
         );
+      } else if (_currentPage == Pages.test) {
+        return LoadTest();
       } else {
         return ErrorPage(toHomePage: _toSwipePage,);
       }
