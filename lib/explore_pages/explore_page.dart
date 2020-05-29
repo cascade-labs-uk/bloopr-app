@@ -121,12 +121,10 @@ class _ExplorePageState extends State<ExplorePage> {
         children: <Widget>[
           IconButton(
             icon: Icon(Constants.EXPLORE_PAGE_ICON, size: 32.0),
-            color: Constants.HIGHLIGHT_COLOR,
             onPressed: (){print("home pressed");},
           ),
           IconButton(
             icon: Icon(Constants.SWIPE_PAGE_ICON, size: 32.0),
-            color: Constants.INACTIVE_COLOR_DARK,
             onPressed: () {
               print("go to profile page button pressed");
               widget.toSwipePage();
@@ -134,7 +132,6 @@ class _ExplorePageState extends State<ExplorePage> {
           ),
           IconButton(
             icon: Icon(Constants.PROFILE_PAGE_ICON, size: 32.0),
-            color: Constants.INACTIVE_COLOR_DARK,
             onPressed: () {
               print("go to profile page button pressed");
               widget.toMyProfilePage();

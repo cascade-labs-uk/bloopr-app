@@ -69,9 +69,13 @@ flutter:
     - assets/profile_image_placeholder.png
 
   fonts:
-    - family:  MyCustomIcons
+    - family: MyCustomIcons
       fonts:
         - asset: assets/icons/MyFlutterApp.ttf
+    - family: CustomIcons
+      fonts:
+        - asset: assets/icons/CustomIcons.ttf
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -75,13 +75,11 @@ class _SwipePageState extends State<SwipePage> {
             onPressed: widget.toDiscoverPage,
           ),
           IconButton(
-            icon: Icon(Constants.SWIPE_PAGE_ICON, size: 32.0),
-            color: Constants.HIGHLIGHT_COLOR,
+            icon: Icon(Constants.SWIPE_PAGE_ACTIVE_ICON, size: 32.0),
             onPressed: (){print("home pressed");},
           ),
           IconButton(
-            icon: Icon(Constants.PROFILE_PAGE_ICON, size: 32.0),
-            color: Constants.INACTIVE_COLOR_DARK,
+            icon: Icon(Constants.PROFILE_PAGE_INACTIVE_ICON, size: 32.0),
             onPressed: () {
               print("go to profile page button pressed");
               widget.toMyProfilePage();
