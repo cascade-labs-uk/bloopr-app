@@ -33,7 +33,10 @@ class SettingsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(
+              Icons.arrow_back_ios,
+              size: 22.5,
+          ),
           color: Constants.INACTIVE_COLOR_DARK,
           onPressed: () {
             Navigator.pop(context);

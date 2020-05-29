@@ -57,7 +57,8 @@ class _UploadProfilePictureState extends State<UploadProfilePicture> {
         backgroundColor: Constants.BACKGROUND_COLOR,
         leading: IconButton(
           icon: Icon(
-            Icons.arrow_back,
+            Icons.arrow_back_ios,
+            size: 22.5,
             color: Constants.INACTIVE_COLOR_DARK,
           ),
           onPressed: () {

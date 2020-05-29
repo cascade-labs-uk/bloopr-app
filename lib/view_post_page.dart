@@ -86,7 +86,7 @@ class _ViewPostPageState extends State<ViewPostPage> {
       appBar: AppBar(
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Constants.INACTIVE_COLOR_DARK,),
+          icon: Icon(Icons.arrow_back_ios, color: Constants.INACTIVE_COLOR_DARK, size: 22.5,),
           onPressed: () {
             Navigator.pop(context);
           },

@@ -71,7 +71,7 @@ class _gridSelectSliverDelegate extends SliverPersistentHeaderDelegate {
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.grid_on),
+                icon: Icon(Icons.grid_on, size: 50.0,),
                 onPressed: (){
                   gridType = GridType.posts;
                   viewPosts();
