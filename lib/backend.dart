@@ -665,12 +665,15 @@ class Backend implements BaseBackend {
     String imageURL = await storageReference.getDownloadURL();
     String firestoreUserID = await getFirestoreUserID(userID);
     String nickName = await getNickname(firestoreUserID);
+    int millisecondsSinceEpoch = DateTime.now().toUtc().millisecondsSinceEpoch;
+    int secondsSinceEpoch = (millisecondsSinceEpoch/1000).floor();
     _firestore.collection('posts').add({
       'caption': caption,
       'poster name': nickName,
       'posterID': userID,
       'posterFirestoreID': firestoreUserID,
       'date posted': FieldValue.serverTimestamp(),
+      'secondsSinceEpoch':secondsSinceEpoch,
       'imageURL': imageURL,
       'likes': 0,
       'dislikes': 0,
