@@ -3,14 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:blooprtest/swipe_pages/swipe_page.dart';
 import 'package:blooprtest/profile_pages/my_profile_page.dart';
 import 'package:blooprtest/explore_pages/explore_page.dart';
-import 'package:blooprtest/load_speed_test.dart';
 import 'package:blooprtest/error_page.dart';
 import 'package:blooprtest/login_pages/root_login_page.dart';
-import 'auth.dart';
+import 'package:blooprtest/push_notifications.dart';
+import 'package:blooprtest/auth.dart';
 
 class RootPage extends StatefulWidget {
   RootPage({this.auth});
   final BaseAuth auth;
+  final PushNotificationsManager pushNotificationsManager = new PushNotificationsManager();
 
   @override
   State<StatefulWidget> createState() => _RootPageState();
@@ -43,6 +44,8 @@ class _RootPageState extends State<RootPage> {
         _authStatus = userId == null ? AuthStatus.notSignedIn : AuthStatus.signedIn;
       });
     });
+
+    widget.pushNotificationsManager.init();
   }
 
   void _signedIn() {
@@ -102,8 +105,6 @@ class _RootPageState extends State<RootPage> {
           toMyProfilePage: _toMyProfilePage,
           toSwipePage: _toSwipePage,
         );
-      } else if (_currentPage == Pages.test) {
-        return LoadTest();
       } else {
         return ErrorPage(toHomePage: _toSwipePage,);
       }
