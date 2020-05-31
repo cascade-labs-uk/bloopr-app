@@ -116,12 +116,13 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
   List<DocumentSnapshot> savedPostDocuments = [];
   int maxImageSize = 7 * 1024 * 1024;
 
-  Future openViewMemePage(context, memeImage, memeDocument,{isSavedPost = false}) async {
+  Future openViewMemePage(context, Image memeImage, DocumentSnapshot memeDocument, String heroTag,{isSavedPost = false}) async {
     Navigator.push(context, MaterialPageRoute(builder: (context) => ViewPostPage(
       memeDocument: memeDocument,
       memeImage: memeImage,
       isSavedPost: isSavedPost,
       pageTitle: isSavedPost?"Saved":"Post",
+      tag: heroTag,
     )));
   }
 
@@ -215,7 +216,7 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
       } else {
         return SliverGrid.count(
           crossAxisCount: 3,
-          children: gridChildren(postImageFutures),
+          children: postedPostGridChildren(postImageFutures),
         );
       }
     } else if(_currentGrid == GridType.savedMemes) {
@@ -236,64 +237,45 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
       } else {
         return SliverGrid.count(
           crossAxisCount: 3,
-          children: gridChildren(savedPostImageFutures, isSavedPost: true),
+          children: savedPostGridChildren(savedPostImageFutures),
         );
       }
     }
   }
 
-  List<Widget> gridChildren(List<Future> postFutures, {isSavedPost = false}) {
-    List<FutureBuilder> children = [];
+  List<Widget> savedPostGridChildren(List<Future> postFutures) {
+    List<Widget> children = [];
 
     for (int counter = 0; counter < postFutures.length; counter++) {
+      String heroTag = savedPostDocuments[counter].documentID + counter.toString();
       children.add(
-        FutureBuilder(
-          future: postFutures[counter],
-          builder: (context, snapshot) {
-            Widget child;
-            if(snapshot.hasData) {
-              child = GestureDetector(
-                onTap: () {
-                  openViewMemePage(
-                    context,
-                    Image.memory(
-                      snapshot.data,
-                      fit: BoxFit.cover,
-                    ),
-                    isSavedPost?savedPostDocuments[counter]:postDocuments[counter],
-                    isSavedPost: isSavedPost,
-                  );
-                },
-                child: Hero(
-                  tag: isSavedPost?savedPostDocuments[counter].documentID:postDocuments[counter].documentID,
-                  child: Image.memory(
-                    snapshot.data,
+        GestureDetector(
+          onTap: () {
+            openViewMemePage(
+              context,
+              Image.network(savedPostDocuments[counter].data['imageURL']),
+              savedPostDocuments[counter],
+              heroTag,
+              isSavedPost: true
+            );
+          },
+          child: Padding(
+            padding: counter%3==1?EdgeInsets.fromLTRB(1.5,0.75,1.5,0.75):EdgeInsets.fromLTRB(0,0.75,0,0.75),
+            child: Container(
+              color: Constants.SECONDARY_COLOR,
+              child: Hero(
+                  tag: heroTag,
+                  child: Image.network(
+                    savedPostDocuments[counter].data['imageURL'],
                     height: 100,
                     width: 100,
                     fit: BoxFit.cover,
-                  ),
-                ),
-              );
-            } else {
-              child = Container(
-                color: Constants.SECONDARY_COLOR,
-                height: 100,
-                width: 100,
-              );
-            }
-            if(counter%3==1) {
-              return Padding(
-                child: child,
-                padding: EdgeInsets.fromLTRB(1.5, 0.75, 1.5, 0.75),
-              );
-            } else {
-              return Padding(
-                child: child,
-                padding: EdgeInsets.fromLTRB(0, 0.75, 0, 0.75),
-              );
-            }
-            return child;
-          },
+                    cacheWidth: 200,
+                    cacheHeight: 200,
+                  )
+              ),
+            ),
+          ),
         )
       );
     }
@@ -301,36 +283,44 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
     return children;
   }
 
-  List<Widget> placeholderGrid() {
-    return [
-      Container(color: Colors.red, height: 150.0),
-      Container(color: Colors.purple, height: 150.0),
-      Container(color: Colors.green, height: 150.0),
-      Container(color: Colors.orange, height: 150.0),
-      Container(color: Colors.yellow, height: 150.0),
-      Container(color: Colors.pink, height: 150.0),
-      Container(color: Colors.cyan, height: 150.0),
-      Container(color: Colors.indigo, height: 150.0),
-      Container(color: Colors.blue, height: 150.0),
-      Container(color: Colors.red, height: 150.0),
-      Container(color: Colors.purple, height: 150.0),
-      Container(color: Colors.green, height: 150.0),
-      Container(color: Colors.orange, height: 150.0),
-      Container(color: Colors.yellow, height: 150.0),
-      Container(color: Colors.pink, height: 150.0),
-      Container(color: Colors.cyan, height: 150.0),
-      Container(color: Colors.indigo, height: 150.0),
-      Container(color: Colors.blue, height: 150.0),
-      Container(color: Colors.red, height: 150.0),
-      Container(color: Colors.purple, height: 150.0),
-      Container(color: Colors.green, height: 150.0),
-      Container(color: Colors.orange, height: 150.0),
-      Container(color: Colors.yellow, height: 150.0),
-      Container(color: Colors.pink, height: 150.0),
-      Container(color: Colors.cyan, height: 150.0),
-      Container(color: Colors.indigo, height: 150.0),
-      Container(color: Colors.blue, height: 150.0),
-    ];
+  List<Widget> postedPostGridChildren(List<Future> postFutures) {
+    List<Widget> children = [];
+
+    for (int counter = 0; counter < postFutures.length; counter++) {
+      String heroTag = postDocuments[counter].documentID + counter.toString();
+      children.add(
+          GestureDetector(
+            onTap: () {
+              openViewMemePage(
+                context,
+                Image.network(postDocuments[counter].data['imageURL']),
+                postDocuments[counter],
+                heroTag,
+                isSavedPost: false
+              );
+            },
+            child: Padding(
+              padding: counter%3==1?EdgeInsets.fromLTRB(1.5,0.75,1.5,0.75):EdgeInsets.fromLTRB(0,0.75,0,0.75),
+              child: Container(
+                color: Constants.SECONDARY_COLOR,
+                child: Hero(
+                    tag: heroTag,
+                    child: Image.network(
+                      postDocuments[counter].data['imageURL'],
+                      height: 100,
+                      width: 100,
+                      fit: BoxFit.cover,
+                      cacheWidth: 200,
+                      cacheHeight: 200,
+                    )
+                ),
+              ),
+            ),
+          )
+      );
+    }
+
+    return children;
   }
 
   SliverPersistentHeader buildGridSelect() {
