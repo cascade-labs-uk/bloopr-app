@@ -1,10 +1,11 @@
 import 'package:blooprtest/asset_management/custom_icons_icons.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Constants {
   static Color OUTLINE_COLOR = Colors.grey[500];
-  static Color SECONDARY_COLOR = Color(0xffEFEFEF);
+  static Color SECONDARY_COLOR = Color(0xffFCFCFC);
   static Color BACKGROUND_COLOR = Colors.white;
   static Color HIGHLIGHT_COLOR = Color(0xff718EDD);
   static Color INACTIVE_COLOR_DARK = Colors.grey[700];
@@ -20,13 +21,16 @@ class Constants {
   static IconData SWIPE_PAGE_ICON = Icons.content_copy;
   static IconData PROFILE_PAGE_ICON = Icons.perm_identity;
 
+  static IconData EXPLORE_PAGE_SELECTED_ICON = CustomIcons.ExploreSelected;
+  static IconData EXPLORE_PAGE_UNSELECTED_ICON = CustomIcons.ExploreUnselected;
+  static IconData SWIPE_PAGE_SELECTED_ICON = CustomIcons.SwipingSelected;
+  static IconData SWIPE_PAGE_UNSELECTED_ICON = CustomIcons.SwipingUnselected;
+  static IconData PROFILE_PAGE_SELECTED_ICON = CustomIcons.ProfileSelected;
+  static IconData PROFILE_PAGE_UNSELECTED_ICON = CustomIcons.ProfileUnselected;
 
-  static IconData SWIPE_PAGE_ACTIVE_ICON = CustomIcons.swipeselected;
-  static IconData SWIPE_PAGE_INACTIVE_ICON = CustomIcons.swipenotselected;
-  static IconData PROFILE_PAGE_ACTIVE_ICON = CustomIcons.profileactive;
-  static IconData PROFILE_PAGE_INACTIVE_ICON = CustomIcons.profileinactive;
-  static IconData SWIPE_PAGE_INACTIVE_ICONS = CustomIcons.testing;
 
+
+  static IconData GRID = CustomIcons.Grid;
 
 
 

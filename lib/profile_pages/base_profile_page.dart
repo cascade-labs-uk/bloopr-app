@@ -1,3 +1,4 @@
+import 'package:blooprtest/asset_management/custom_icons_icons.dart';
 import 'package:blooprtest/backend.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -58,6 +59,7 @@ class _gridSelectSliverDelegate extends SliverPersistentHeaderDelegate {
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Visibility(
                 visible: isOwnProfile,
@@ -67,16 +69,16 @@ class _gridSelectSliverDelegate extends SliverPersistentHeaderDelegate {
                     gridType = GridType.savedMemes;
                     viewSaved();
                   },
-                  color: gridType==GridType.savedMemes?Constants.HIGHLIGHT_COLOR:Constants.INACTIVE_COLOR_DARK,
+                  color: gridType==GridType.savedMemes?Constants.DARK_TEXT:Constants.INACTIVE_COLOR_DARK,
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.grid_on, size: 50.0,),
+                icon: Icon(Constants.GRID, size: 25.0,),
                 onPressed: (){
                   gridType = GridType.posts;
                   viewPosts();
                 },
-                color: gridType==GridType.posts?Constants.HIGHLIGHT_COLOR:Constants.INACTIVE_COLOR_DARK,
+                color: gridType==GridType.posts?Constants.DARK_TEXT:Constants.INACTIVE_COLOR_DARK,
               ),
               Visibility(
                 visible: isOwnProfile,
@@ -87,7 +89,7 @@ class _gridSelectSliverDelegate extends SliverPersistentHeaderDelegate {
                     openUploadMeme(context);
                   },
                 ),
-              )
+              ),
             ],
           ),
           Container(
@@ -206,7 +208,7 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
             child: Center(
               heightFactor: 120,
               child: Text(
-                'You havent posted anything!',
+                "You haven't posted anything!",
                 style: Constants.TEXT_STYLE_CAPTION_GREY,
               ),
             ),

@@ -178,6 +178,7 @@ class _followingCardState extends State<FollowingCard> {
           future: widget.backend.getImageFromLocation(widget.documentSnapshot.data['user profile picture URL']),
           builder: (context, snapshot) {
             Widget displayedImage;
+
             if(snapshot.hasData) {
               displayedImage = Image.memory(
                 snapshot.data,
@@ -192,10 +193,30 @@ class _followingCardState extends State<FollowingCard> {
               );
             }
 
-            return ClipRRect(
-              child: displayedImage,
-              borderRadius: BorderRadius.circular(35.0),
+            return GestureDetector(
+              child: Container(
+                decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Constants.OUTLINE_COLOR,
+                      width: 0.5,
+                    ),
+                    borderRadius: BorderRadius.circular(100)
+                ),
+                child: ClipRRect(
+                  child: displayedImage,
+                  borderRadius: BorderRadius.circular(35.0),
+                ),
+              ),
+              onTap: () {
+                // Go to profile page of user
+              },
             );
+
+
+//            return ClipRRect(
+//              child: displayedImage,
+//              borderRadius: BorderRadius.circular(35.0),
+//            );
           },
         ),
         title: Text(

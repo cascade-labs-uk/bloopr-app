@@ -86,18 +86,18 @@ class _MyProfilePageState extends State<MyProfilePage> {
         children: <Widget>[
           Spacer(),
           IconButton(
-            icon: Icon(Constants.EXPLORE_PAGE_ICON, size: 32.0,),
+            icon: Icon(Constants.EXPLORE_PAGE_UNSELECTED_ICON, size: 27.5,),
             color: Constants.INACTIVE_COLOR_DARK,
             onPressed: widget.toDiscoverPage,
           ),
           Spacer(),
           IconButton(
-            icon: Icon(Constants.SWIPE_PAGE_INACTIVE_ICON, size: 35,),
+            icon: Icon(Constants.SWIPE_PAGE_UNSELECTED_ICON, size: 32.0,),
             onPressed: widget.toSwipePage,
           ),
           Spacer(),
           IconButton(
-              icon: Icon(Constants.PROFILE_PAGE_ACTIVE_ICON, size: 40.0,),
+              icon: Icon(Constants.PROFILE_PAGE_SELECTED_ICON, size: 27.5,),
               onPressed: (){}
           ),
           Spacer(),

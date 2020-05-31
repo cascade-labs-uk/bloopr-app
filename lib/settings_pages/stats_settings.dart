@@ -67,6 +67,11 @@ class _StatsPageState extends State<StatsPage> {
                 subtitle: rightSwipes==null?'loading':'${leftSwipes.toString()}',
                 onTap: () {},
               ),
+              SettingsTile(
+                title: 'Gloves Donated',
+                subtitle: rightSwipes==null?'loading':'${((rightSwipes/1000).floor()).toString()}',
+                onTap: () {},
+              ),
             ],
           ),
         ],

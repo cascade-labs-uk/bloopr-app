@@ -97,7 +97,7 @@ class _ProfilePageHeaderState extends State<ProfilePageHeader> {
               decoration: BoxDecoration(
                 border: Border.all(
                   color: Constants.OUTLINE_COLOR,
-                  width: 0.5
+                  width: 0.5,
                 ),
                 borderRadius: BorderRadius.circular(100)
               ),
@@ -122,20 +122,48 @@ class _ProfilePageHeaderState extends State<ProfilePageHeader> {
           Padding(
             padding: const EdgeInsets.fromLTRB(0.0,0.0,0.0,12.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Text(
-                      getUserSwipes(),
-                      style: Constants.TEXT_STYLE_LARGE_NUMBERS_DARK,
-                    ),
-                    Text(
-                      'Swipes',
-                      style: Constants.TEXT_STYLE_HINT_DARK,
-                    )
-                  ],
+                Spacer(flex: 5,),
+                GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      child: AlertDialog(
+                        content: Image.asset(
+                          'assets/profile_image_placeholder.png',
+                          height: 100,
+                          width: 100,
+                        ),
+                        elevation: 0,
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text("OK"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(7.5),
+                        ),
+                      ),
+                      barrierDismissible: true,
+                    );
+                  },
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        getUserSwipes(),
+                        style: Constants.TEXT_STYLE_LARGE_NUMBERS_DARK,
+                      ),
+                      Text(
+                        'Swipes',
+                        style: Constants.TEXT_STYLE_HINT_DARK,
+                      )
+                    ],
+                  ),
                 ),
+                Spacer(flex: 2,),
                 GestureDetector(
                   onTap: () {
                     openFollowList(context);
@@ -153,18 +181,47 @@ class _ProfilePageHeaderState extends State<ProfilePageHeader> {
                     ],
                   ),
                 ),
-                Column(
-                  children: <Widget>[
-                    Text(
-                      getUserGloves(),
-                      style: Constants.TEXT_STYLE_LARGE_NUMBERS_DARK,
-                    ),
-                    Text(
-                      'Gloves',
-                      style: Constants.TEXT_STYLE_HINT_DARK,
-                    )
-                  ],
+                Spacer(flex: 2,),
+                GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      child: AlertDialog(
+                        content: Image.asset(
+                          'assets/profile_image_placeholder.png',
+                          height: 100,
+                          width: 100,
+                        ),
+                        elevation: 0,
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text("OK"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(7.5),
+                        ),
+                      ),
+                      barrierDismissible: true,
+                    );
+                  },
+                  child: Column(
+                        children: <Widget>[
+                          Text(
+                            getUserGloves(),
+                            style: Constants.TEXT_STYLE_LARGE_NUMBERS_DARK,
+                          ),
+                          Text(
+                            'Gloves',
+                            style: Constants.TEXT_STYLE_HINT_DARK,
+                          )
+                        ],
+                      ),
                 ),
+                Spacer(flex: 5,),
               ],
             ),
           ),
@@ -180,15 +237,15 @@ class _ProfilePageHeaderState extends State<ProfilePageHeader> {
           Padding(
             padding: EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 20.0),
             child: widget.isOwnProfile?
-              RaisedButton(
+              FlatButton(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5.0),
                   side: BorderSide(
-                    color: Constants.DARK_TEXT,
-                    width: 0.5,
+                    color: Constants.GREY_TEXT,
+                    width: 1.25,
                   )
                 ),
-                elevation: 0,
+
                 color: Constants.BACKGROUND_COLOR,
                 child: Text('Edit Profile'),
                 onPressed: () {

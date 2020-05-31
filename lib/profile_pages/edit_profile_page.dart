@@ -60,7 +60,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Constants.SECONDARY_COLOR,
-        elevation: 0,
+        elevation: 0.8,
         title: Text(
           'Edit Profile',
           style: Constants.TEXT_STYLE_HEADER_DARK,
@@ -69,70 +69,120 @@ class _EditProfilePageState extends State<EditProfilePage> {
           icon: Icon(
             Icons.arrow_back_ios,
             size: 22.5,
-            color: Constants.INACTIVE_COLOR_DARK,
+            color: Constants.DARK_TEXT,
           ),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text(
+              'Save',
+              style: TextStyle(
+                color: Constants.HIGHLIGHT_COLOR,
+                fontWeight: FontWeight.w800,
+                fontSize: 16.5,
+              ),
+            ),
+            onPressed: () {
+              validateAndSubmit();
+              Navigator.pop(context);
+            },
+          ),
+        ],
       ),
       body: Container(
         color: Constants.BACKGROUND_COLOR,
         child: Form(
           child: Column(
             children: <Widget>[
+
               Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: ClipRRect(
-                  child: ProfilePicture(widget.firestoreID),
-                  borderRadius: BorderRadius.circular(75.0),
+                padding: const EdgeInsets.fromLTRB(0, 32.5, 0, 0),
+                child: GestureDetector(
+                  child: Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Constants.OUTLINE_COLOR,
+                          width: 0.5,
+                        ),
+                        borderRadius: BorderRadius.circular(100)
+                    ),
+                    child: ClipRRect(
+                      child: ProfilePicture(widget.firestoreID),
+                      borderRadius: BorderRadius.circular(75.0),
+                    ),
+                  ),
+                  onTap: () {
+                    openUploadProfilePicture(context, false);
+                  },
                 ),
               ),
+
               Padding(
-                padding: const EdgeInsets.fromLTRB(0,0,0,16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    RaisedButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5.0),
-                          side: BorderSide(
-                            color: Constants.DARK_TEXT,
-                            width: 0.5,
-                          )
-                      ),
-                      elevation: 0,
-                      color: Constants.BACKGROUND_COLOR,
-                      child: Text('Upload from camera'),
-                      onPressed: () {
-                        openUploadProfilePicture(context, true);
-                      },
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 17.5),
+                child: FlatButton(
+                  child: Text(
+                    "Change Photo",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Constants.HIGHLIGHT_COLOR,
                     ),
-                    RaisedButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5.0),
-                          side: BorderSide(
-                            color: Constants.DARK_TEXT,
-                            width: 0.5,
-                          )
-                      ),
-                      elevation: 0,
-                      color: Constants.BACKGROUND_COLOR,
-                      child: Text('Upload from gallery'),
-                      onPressed: () {
-                        openUploadProfilePicture(context, false);
-                      },
-                    ),
-                  ],
+                  ),
+                  onPressed: () {
+                    openUploadProfilePicture(context, false);
+                  },
                 ),
               ),
+//              Padding(
+//                padding: const EdgeInsets.fromLTRB(0,0,0,16.0),
+//                child: Row(
+//                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                  children: <Widget>[
+//                    RaisedButton(
+//                      shape: RoundedRectangleBorder(
+//                          borderRadius: BorderRadius.circular(5.0),
+//                          side: BorderSide(
+//                            color: Constants.DARK_TEXT,
+//                            width: 0.5,
+//                          )
+//                      ),
+//                      elevation: 0,
+//                      color: Constants.BACKGROUND_COLOR,
+//                      child: Text('Upload from camera'),
+//                      onPressed: () {
+//                        openUploadProfilePicture(context, true);
+//                      },
+//                    ),
+//                    RaisedButton(
+//                      shape: RoundedRectangleBorder(
+//                          borderRadius: BorderRadius.circular(5.0),
+//                          side: BorderSide(
+//                            color: Constants.DARK_TEXT,
+//                            width: 0.5,
+//                          )
+//                      ),
+//                      elevation: 0,
+//                      color: Constants.BACKGROUND_COLOR,
+//                      child: Text('Upload from gallery'),
+//                      onPressed: () {
+//                        openUploadProfilePicture(context, false);
+//                      },
+//                    ),
+//                  ],
+//                ),
+//              ),
               Container(
                 color: Constants.OUTLINE_COLOR,
                 width: double.infinity,
                 height: 0.5,
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(8.0,0,8.0,0),
+                padding: const EdgeInsets.all(2.5),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12.5, 0, 8.0, 0),
                 child: Row(
                   children: <Widget>[
                     Expanded(
@@ -143,22 +193,43 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                     Expanded(
                       flex: 4,
-                      child: TextFormField(
-                        controller: nicknameTextController,
-                        decoration: InputDecoration(
-                            hintText: 'Username',
-                            hintStyle: Constants.TEXT_STYLE_HINT_DARK,
-                            fillColor: Colors.white,
-                        ),
-                        validator: (value) => value.isEmpty ? 'nickname cannot be empty' : null,
-                        //onSaved: (value) => _email = value,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Container(
+                            decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.grey[500],
+                                    width: 0.0,
+                                  ),
+                                ),
+                            ),
+                            width: 280,
+                            child: TextFormField(
+                              controller: nicknameTextController,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                errorBorder: InputBorder.none,
+                                disabledBorder: InputBorder.none,
+                                hintText: 'Username',
+                                hintStyle: Constants.TEXT_STYLE_HINT_DARK,
+                                fillColor: Colors.white,
+                              ),
+                              validator: (value) => value.isEmpty ? 'nickname cannot be empty' : null,
+                              //onSaved: (value) => _email = value,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(8.0,0,8.0,0),
+                padding: const EdgeInsets.fromLTRB(12.5,0,8.0,0),
                 child: Row(
                   children: <Widget>[
                     Expanded(
@@ -174,9 +245,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         maxLines: null,
                         controller: bioTextController,
                         decoration: InputDecoration(
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
                           hintText: 'Bio',
                           hintStyle: Constants.TEXT_STYLE_HINT_DARK,
-                          fillColor: Colors.white
+                          fillColor: Colors.white,
                         ),
                       ),
                     ),
@@ -184,23 +260,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: RaisedButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                      side: BorderSide(
-                        color: Constants.DARK_TEXT,
-                        width: 0.5,
-                      )
-                  ),
-                  elevation: 0,
-                  color: Constants.BACKGROUND_COLOR,
-                  child: Text('Done'),
-                  onPressed: () {
-                    validateAndSubmit();
-                    Navigator.pop(context);
-                  },
-                ),
+                padding: const EdgeInsets.all(2.5),
               ),
               Container(
                 color: Constants.OUTLINE_COLOR,
