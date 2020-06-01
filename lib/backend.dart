@@ -68,7 +68,7 @@ class Backend implements BaseBackend {
   // 1 to print when functions are invoked
   // 2 to print all non-future results (and 1)
   // 3 to print all results (and 2)
-  final int debugLevel = 1;
+  final int debugLevel = 2;
 
   Future<DocumentSnapshot> getSingleImageURL() {
     DocumentReference singleImageReference = _firestore.collection('posts').document('hBt3chrf1CU5YqSqg9sP');
@@ -312,6 +312,7 @@ class Backend implements BaseBackend {
     }
 
     String userID = await _auth.currentUser();
+
     return getFirestoreUserID(userID);
   }
 
@@ -788,6 +789,11 @@ class Backend implements BaseBackend {
   }
 
   void updateUserToken(String token) {
+    if(debugLevel >= 1) {
+      print("[FUNCTION INVOKED] Backend.updateUserToken");
+      print("[FUNCTION ARGS][Backend.updateUserToken] token: $token");
+    }
+
     getOwnFirestoreUserID().then((firestoreUserID) {
       _firestore.collection('users').document(firestoreUserID).updateData({
         'fcmToken':token
