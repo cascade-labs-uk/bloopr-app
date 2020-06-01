@@ -16,6 +16,7 @@ abstract class BaseBackend {
   Future<QuerySnapshot> getMultipleImageURL(int number);
   Future<QuerySnapshot> getExplorePosts(int numberOfPosts);
   Future<http.Response> getRecommendedPostIDs();
+  Future<http.Response> getPopularPostIDs();
   Future<List<Future<DocumentSnapshot>>> getRecommendedPosts();
   Future<List<Future<DocumentSnapshot>>> getSentPosts(); // returns the posts specified in the user's inbox as a List of DocumentSnapshots, and clears the inbox
   Future<List<String>> getSeenPosts(); // gets the IDs of all posts the user has interacted with from elasticsearch
@@ -54,6 +55,7 @@ abstract class BaseBackend {
   void unsavePost(String postFirestoreID);
   void sendMeme(String userFirestoreID, String postID);
   void reportMeme(String postID);
+  void updateUserToken(String token);
 }
 
 class Backend implements BaseBackend {
@@ -66,7 +68,7 @@ class Backend implements BaseBackend {
   // 1 to print when functions are invoked
   // 2 to print all non-future results (and 1)
   // 3 to print all results (and 2)
-  final int debugLevel = 1;
+  final int debugLevel = 2;
 
   Future<DocumentSnapshot> getSingleImageURL() {
     DocumentReference singleImageReference = _firestore.collection('posts').document('hBt3chrf1CU5YqSqg9sP');
@@ -102,6 +104,34 @@ class Backend implements BaseBackend {
     List likedPosts = json.decode(likedPostsResponse.body)['likes'];
     List viewedPosts = json.decode(likedPostsResponse.body)['viewedPosts'];
 
+    int currentMillisecondsSinceEpoch = DateTime.now().toUtc().millisecondsSinceEpoch;
+    int fiveDaysInSeconds = 60*60*24*50;
+    int currentSecondsSinceEpochFiveDaysAgo = (currentMillisecondsSinceEpoch/1000).floor() - fiveDaysInSeconds;
+    int numberOfNewPosts = 8000;
+    var newPostsQueryURL = 'https://7ee3335fb14040269b50b807934bf5d0.europe-west2.gcp.elastic-cloud.com:9243/posts/_search';
+    var newPostsQueryBody = '{ "size" : $numberOfNewPosts, "query" : { "range" : { "timePosted" : { "gte" : $currentSecondsSinceEpochFiveDaysAgo } } }, "sort": [{"timePosted": "desc"}] }';
+    var newPostsResponse = await http.post(newPostsQueryURL, body: newPostsQueryBody, headers: {'Authorization':'Basic ZWxhc3RpYzpGcWFweTJhSFRnOGo4QWlSa3Z1NDR4aTA=','Content-Type': 'application/json'});
+    // TODO: add a field that checks if the posterFirestoreID is the same as the user's and leaves out posts that are
+    List newPostHitList = json.decode(newPostsResponse.body)["hits"]["hits"];
+    List<String> newPostList = [];
+
+    for(int counter=0; counter < newPostHitList.length; counter++) {
+      newPostList.add(newPostHitList[counter]["_source"]["firebaseID"]);
+    }
+
+    String newPostsString;
+
+    if(newPostList.length != 0) {
+      newPostsString = '[';
+      for (int counter = 0; counter < newPostList.length - 1; counter++) {
+        newPostsString = newPostsString + '"${newPostList[counter]}",';
+      }
+      newPostsString =
+          newPostsString + '"${newPostList[newPostList.length - 1]}"]';
+    } else {
+      newPostsString = '[]';
+    }
+
     String likedPostsString;
 
     if(likedPosts.length != 0) {
@@ -129,14 +159,49 @@ class Backend implements BaseBackend {
     }
 
     var url = 'https://7ee3335fb14040269b50b807934bf5d0.europe-west2.gcp.elastic-cloud.com:9243/interactions/_search';
-    var body = '{ "query": { "terms": { "likes": $likedPostsString, "boost": 1.0 } }, "aggs": { "likedPosts": { "terms": { "field": "likes", "exclude": $viewedPostsString, "min_doc_count": 1 } }, "viewedPosts": { "terms": { "field": "viewedPosts", "exclude": $viewedPostsString, "min_doc_count": 1 } }, "unique_posts": { "cardinality": { "field": "likes" } } } }';
+    var body = '{ "query": { "terms": { "likes": $likedPostsString, "boost": 1.0 } }, "aggs": { "likedPosts": { "terms": { "field": "likes", "include": $newPostsString,"exclude": $viewedPostsString, "min_doc_count": 1 } }, "viewedPosts": { "terms": { "field": "viewedPosts", "exclude": $viewedPostsString, "min_doc_count": 1 } }, "unique_posts": { "cardinality": { "field": "likes" } } } }';
     return http.post(url, body: body, headers: {'Authorization':'Basic ZWxhc3RpYzpGcWFweTJhSFRnOGo4QWlSa3Z1NDR4aTA=','Content-Type': 'application/json'});
+  }
+
+  Future<http.Response> getPopularPostIDs({List<String> exclude}) async {
+    if(exclude==null) {
+      var popularPostsQueryURL = 'https://7ee3335fb14040269b50b807934bf5d0.europe-west2.gcp.elastic-cloud.com:9243/interations/_search';
+      var popularPostsQueryBody = '{"size": 0,"aggs": {"likedPosts": {"terms": {"field": "likes","min_doc_count": 1}},"unique_posts": {"cardinality": {"field": "likes"}}}}';
+      return http.post(popularPostsQueryURL, body: popularPostsQueryBody,
+          headers: {
+            'Authorization': 'Basic ZWxhc3RpYzpGcWFweTJhSFRnOGo4QWlSa3Z1NDR4aTA=',
+            'Content-Type': 'application/json'
+          });
+    } else {
+      String excludedPostsString;
+
+      if(exclude.length != 0) {
+        excludedPostsString = '[';
+        for (int counter = 0; counter < exclude.length - 1; counter++) {
+          excludedPostsString = excludedPostsString + '"${exclude[counter]}",';
+        }
+        excludedPostsString =
+            excludedPostsString + '"${exclude[exclude.length - 1]}"]';
+      } else {
+        excludedPostsString = '[]';
+      }
+
+      var popularPostsQueryURL = 'https://7ee3335fb14040269b50b807934bf5d0.europe-west2.gcp.elastic-cloud.com:9243/interactions/_search';
+      var popularPostsQueryBody = '{"size": 0,"aggs": {"likedPosts": {"terms": {"field": "likes", "exclude": $excludedPostsString, "min_doc_count": 1}},"unique_posts": {"cardinality": {"field": "likes"}}}}';
+      return http.post(popularPostsQueryURL, body: popularPostsQueryBody,
+          headers: {
+            'Authorization': 'Basic ZWxhc3RpYzpGcWFweTJhSFRnOGo4QWlSa3Z1NDR4aTA=',
+            'Content-Type': 'application/json'
+          });
+    }
   }
 
   Future<List<Future<DocumentSnapshot>>> getRecommendedPosts() async {
     if(debugLevel >= 1) {
       print("[FUNCTION INVOKED] Backend.getRecommendedPosts");
     }
+
+    int temp_target = 20;
 
     return getRecommendedPostIDs().then((response) async {
       List buckets = json.decode(response.body)['aggregations']['likedPosts']['buckets'];
@@ -147,17 +212,22 @@ class Backend implements BaseBackend {
         documentIDs.add(buckets[counter]['key']);
       }
 
+      if(documentIDs.length < temp_target) {
+        http.Response popularPostResponse = await getPopularPostIDs(exclude: documentIDs);
+        print(popularPostResponse.body);
+        List popularPostBuckets = json.decode(popularPostResponse.body)['aggregations']['likedPosts']['buckets'];
+        print("popular posts: " + popularPostBuckets.toString());
+        for(int counter = 0; counter < popularPostBuckets.length; counter++) {
+          documentIDs.add(popularPostBuckets[counter]['key']);
+        }
+      }
+
       List<Future<DocumentSnapshot>> postFutures = [];
+      print("documentIDs: " + documentIDs.toString());
 
       for (int counter = 0; counter < documentIDs.length; counter++) {
         postFutures.add(_firestore.collection('posts').document(documentIDs[counter]).get());
       }
-      
-      postFutures.add(_firestore.collection('posts').document('HFnzAFhgMVeZ4o3fYivn').get());
-      postFutures.add(_firestore.collection('posts').document('M3V2BGoZ6DPV8drjvQ8V').get());
-      postFutures.add(_firestore.collection('posts').document('S6Ovx4oh2VwnnsKIicVk').get());
-      postFutures.add(_firestore.collection('posts').document('TVF2h9bfBDV0pvLvcWdV').get());
-      postFutures.add(_firestore.collection('posts').document('W3GW6KIVYtjWnqhpy755').get());
 
       return postFutures;
     });
@@ -242,6 +312,7 @@ class Backend implements BaseBackend {
     }
 
     String userID = await _auth.currentUser();
+
     return getFirestoreUserID(userID);
   }
 
@@ -665,12 +736,15 @@ class Backend implements BaseBackend {
     String imageURL = await storageReference.getDownloadURL();
     String firestoreUserID = await getFirestoreUserID(userID);
     String nickName = await getNickname(firestoreUserID);
+    int millisecondsSinceEpoch = DateTime.now().toUtc().millisecondsSinceEpoch;
+    int secondsSinceEpoch = (millisecondsSinceEpoch/1000).floor();
     _firestore.collection('posts').add({
       'caption': caption,
       'poster name': nickName,
       'posterID': userID,
       'posterFirestoreID': firestoreUserID,
       'date posted': FieldValue.serverTimestamp(),
+      'secondsSinceEpoch':secondsSinceEpoch,
       'imageURL': imageURL,
       'likes': 0,
       'dislikes': 0,
@@ -712,5 +786,18 @@ class Backend implements BaseBackend {
     }
 
     // TODO: implement report feature
+  }
+
+  void updateUserToken(String token) {
+    if(debugLevel >= 1) {
+      print("[FUNCTION INVOKED] Backend.updateUserToken");
+      print("[FUNCTION ARGS][Backend.updateUserToken] token: $token");
+    }
+
+    getOwnFirestoreUserID().then((firestoreUserID) {
+      _firestore.collection('users').document(firestoreUserID).updateData({
+        'fcmToken':token
+      });
+    });
   }
 }
