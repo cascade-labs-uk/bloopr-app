@@ -15,8 +15,8 @@ class Language extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          iconSize: 27.5,
+          icon: Icon(Icons.arrow_back_ios),
+          iconSize: 22.5,
           onPressed: () {
             Navigator.of(context).pop();
           },

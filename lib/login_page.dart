@@ -219,7 +219,7 @@ class _LoginPageState extends State<LoginPage> {
   List<Widget> buildInputs() {
     if(_formType == FormType.login) {
       return [
-        SizedBox(height: 150,),
+        Spacer(flex: 40,),              //.................................................................................
         Theme(
           data: ThemeData(
             primaryColor: Constants.INACTIVE_COLOR_LIGHT,
@@ -253,7 +253,7 @@ class _LoginPageState extends State<LoginPage> {
             onSaved: (value) => _email = value,
           ),
         ),
-        SizedBox(height: 30,),
+        Spacer(flex: 6,),             //..................................................................................
         Theme(
           data: ThemeData(
             primaryColor: Constants.INACTIVE_COLOR_LIGHT,
@@ -291,7 +291,7 @@ class _LoginPageState extends State<LoginPage> {
       ];
     } else if (_formType == FormType.forgotPassword) {
       return [
-        SizedBox(height: 160,),
+        Spacer(),
         Theme(
           data: ThemeData(
             primaryColor: Constants.INACTIVE_COLOR_LIGHT,
@@ -329,7 +329,7 @@ class _LoginPageState extends State<LoginPage> {
       ];
     } else {
       return [
-        SizedBox(height: 90,),
+        Spacer(flex: 30,),
         Theme(
           data: ThemeData(
             primaryColor: Constants.INACTIVE_COLOR_LIGHT,
@@ -363,7 +363,7 @@ class _LoginPageState extends State<LoginPage> {
             onSaved: (value) => _email = value,
           ),
         ),
-        SizedBox(height: 30,),
+        Spacer(flex: 15,), //SIZED BOX                 ..................................................................................
         Theme(
           data: ThemeData(
             primaryColor: Constants.INACTIVE_COLOR_LIGHT,
@@ -398,7 +398,7 @@ class _LoginPageState extends State<LoginPage> {
             onSaved: (value) => _password = value,
           ),
         ),
-        SizedBox(height: 30,),
+        Spacer(flex: 15,), //SIZED BOX                 ..................................................................................
         Theme(
           data: ThemeData(
             primaryColor: Constants.INACTIVE_COLOR_LIGHT,
@@ -434,6 +434,7 @@ class _LoginPageState extends State<LoginPage> {
 
           ),
         ),
+        Spacer(flex: 80,),
       ];
     }
   }
@@ -456,15 +457,15 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ],
         ),
-        Spacer(),
+        Spacer(flex: 45,),
         SizedBox(
-          height: 60.0,
-          width: 220,
           child: ButtonTheme(
             buttonColor: Constants.BACKGROUND_COLOR,
             minWidth: 220,
             child: RaisedButton(
               elevation: 0,
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
               onPressed: validateAndSubmit,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(80.0)),
               padding: EdgeInsets.all(0.0),
@@ -477,13 +478,14 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(30.0)
                 ),
                 child: Container(
-                  constraints: BoxConstraints(maxWidth: 220.0, minHeight: 50.0),
+                  constraints: BoxConstraints(maxWidth: 220.0, minHeight: 60.0),
                   alignment: Alignment.center,
                   child: Text(
                     "Login",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: Colors.white
+                        color: Colors.white,
+                        fontSize: 16
                     ),
                   ),
                 ),
@@ -491,6 +493,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
+        Spacer(flex: 1,),
         FlatButton(
           child: Text(
             'Create Account',
@@ -498,12 +501,12 @@ class _LoginPageState extends State<LoginPage> {
           ),
           onPressed: moveToRegister,
         ),
+        Spacer(),
       ];
     } else if (_formType == FormType.forgotPassword) {
       return [
+        Spacer(flex: 1,),
         SizedBox(
-          height: 60.0,
-          width: 220,
           child: ButtonTheme(
             buttonColor: Constants.BACKGROUND_COLOR,
             minWidth: 220,
@@ -572,7 +575,8 @@ class _LoginPageState extends State<LoginPage> {
                     "Create account",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: Colors.white
+                        color: Colors.white,
+                        fontSize: 15.0,
                     ),
                   ),
                 ),

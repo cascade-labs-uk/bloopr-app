@@ -84,21 +84,23 @@ class _MyProfilePageState extends State<MyProfilePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
+          Spacer(),
           IconButton(
-            icon: Icon(Constants.EXPLORE_PAGE_ICON, size: 32.0,),
+            icon: Icon(Constants.EXPLORE_PAGE_UNSELECTED_ICON, size: 27.5,),
             color: Constants.INACTIVE_COLOR_DARK,
             onPressed: widget.toDiscoverPage,
           ),
+          Spacer(),
           IconButton(
-            icon: Icon(Constants.SWIPE_PAGE_ICON, size: 32.0,),
-            color: Constants.INACTIVE_COLOR_DARK,
+            icon: Icon(Constants.SWIPE_PAGE_UNSELECTED_ICON, size: 32.0,),
             onPressed: widget.toSwipePage,
           ),
+          Spacer(),
           IconButton(
-              icon: Icon(Constants.PROFILE_PAGE_ICON, size: 32.0,),
-              color: Constants.HIGHLIGHT_COLOR,
+              icon: Icon(Constants.PROFILE_PAGE_SELECTED_ICON, size: 27.5,),
               onPressed: (){}
-          )
+          ),
+          Spacer(),
         ],
       ),
     );

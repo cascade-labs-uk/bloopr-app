@@ -46,16 +46,19 @@ class _SeeFollowListState extends State<SeeFollowList> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          elevation: 0,
           backgroundColor: Constants.SECONDARY_COLOR,
           leading: IconButton(
             icon: Icon(
-              Icons.arrow_back,
+              Icons.arrow_back_ios,
+              size: 22.5,
               color: Constants.INACTIVE_COLOR_DARK,
             ),
             onPressed: (){
               Navigator.pop(context);
             },
           ),
+          title: Text("Username", style: Constants.TEXT_STYLE_HEADER_DARK,),
           bottom: TabBar(
             labelStyle: Constants.TEXT_STYLE_HEADER_HIGHLIGHT,
             unselectedLabelStyle: Constants.TEXT_STYLE_HEADER_DARK,
@@ -65,14 +68,15 @@ class _SeeFollowListState extends State<SeeFollowList> {
                 child: Text(
                   'Followers',
                   style: Constants.TEXT_STYLE_HEADER_DARK,
+
                 )
               ),
               Tab(
                 child: Text(
                   'Following',
                   style: Constants.TEXT_STYLE_HEADER_DARK,
-                )
-              )
+                ),
+              ),
             ],
           ),
         ),
@@ -150,19 +154,19 @@ class _followingCardState extends State<FollowingCard> {
   Widget build(BuildContext context) {
     return Padding(
       key: widget.key,
-      padding: const EdgeInsets.fromLTRB(0, 6.0, 0, 6.0),
+      padding: const EdgeInsets.fromLTRB(0, 8.5, 0, 8.5),
       child: ListTile(
         trailing: RaisedButton(
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(5.0),
               side: BorderSide(
-                color: following?Constants.HIGHLIGHT_COLOR:Constants.DARK_TEXT,
+                color: following?Constants.DARK_TEXT:Constants.HIGHLIGHT_COLOR,
                 width: 0.5,
               )
           ),
           elevation: 0,
-          color: Constants.BACKGROUND_COLOR,
-          child: following?Text('Unfollow'):Text('Follow'),
+          color: following?Constants.LIGHT_TEXT:Constants.HIGHLIGHT_COLOR,
+          child: following?Text('Unfollow', style: Constants.TEXT_STYLE_HINT_BLACK,):Text('Follow', style: Constants.TEXT_STYLE_HINT_LIGHT,),
           onPressed: () {
             toggleFollow(widget.documentSnapshot.data['userFirestoreID']);
             setState(() {
@@ -174,6 +178,7 @@ class _followingCardState extends State<FollowingCard> {
           future: widget.backend.getImageFromLocation(widget.documentSnapshot.data['user profile picture URL']),
           builder: (context, snapshot) {
             Widget displayedImage;
+
             if(snapshot.hasData) {
               displayedImage = Image.memory(
                 snapshot.data,
@@ -188,10 +193,30 @@ class _followingCardState extends State<FollowingCard> {
               );
             }
 
-            return ClipRRect(
-              child: displayedImage,
-              borderRadius: BorderRadius.circular(35.0),
+            return GestureDetector(
+              child: Container(
+                decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Constants.OUTLINE_COLOR,
+                      width: 0.5,
+                    ),
+                    borderRadius: BorderRadius.circular(100)
+                ),
+                child: ClipRRect(
+                  child: displayedImage,
+                  borderRadius: BorderRadius.circular(35.0),
+                ),
+              ),
+              onTap: () {
+                // Go to profile page of user
+              },
             );
+
+
+//            return ClipRRect(
+//              child: displayedImage,
+//              borderRadius: BorderRadius.circular(35.0),
+//            );
           },
         ),
         title: Text(
