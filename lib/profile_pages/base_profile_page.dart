@@ -178,7 +178,7 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
       child: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
-            expandedHeight: 440.0,
+            expandedHeight: 448.0,
             flexibleSpace: FlexibleSpaceBar(
               background: ProfilePageHeader(
                 userID: widget.displayedUserID,
