@@ -69,7 +69,7 @@ class _UploadMemeState extends State<UploadMeme> {
       imageFile.absolute.path,
       minWidth: 400,
       minHeight: 400,
-      quality: 70,
+      quality: 90,
     );
     Future<File> resizedImageFuture = File(targetPath).writeAsBytes(resizedImageBytes);
     return resizedImageFuture;

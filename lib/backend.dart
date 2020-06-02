@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:blooprtest/profile_pages/base_profile_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,9 +16,11 @@ abstract class BaseBackend {
   Future<DocumentSnapshot> getSingleImageURL();
   Future<QuerySnapshot> getMultipleImageURL(int number);
   Future<QuerySnapshot> getExplorePosts(int numberOfPosts);
+  Future<List<Future<DocumentSnapshot>>> getExplorePostFutures(int quantity, {List<String> exclude});
   Future<http.Response> getRecommendedPostIDs();
+  Future<List<Future<DocumentSnapshot>>> getRecommendedPosts({List<String> excluded});
   Future<http.Response> getPopularPostIDs();
-  Future<List<Future<DocumentSnapshot>>> getRecommendedPosts();
+  Future<http.Response> getNewPostsWithLowInteraction(List excluded);
   Future<List<Future<DocumentSnapshot>>> getSentPosts(); // returns the posts specified in the user's inbox as a List of DocumentSnapshots, and clears the inbox
   Future<List<String>> getSeenPosts(); // gets the IDs of all posts the user has interacted with from elasticsearch
   Future<QuerySnapshot> getImageComments(String postID);
@@ -89,11 +92,61 @@ class Backend implements BaseBackend {
       print("[FUNCTION INVOKED] Backend.getExplorePosts");
     }
 
+
+
     Future<QuerySnapshot> postSnapshot = _firestore.collection('posts').orderBy('caption').limit(numberOfPosts).getDocuments();
     return postSnapshot;
   }
 
-  Future<http.Response> getRecommendedPostIDs() async {
+  Future<List<Future<DocumentSnapshot>>> getExplorePostFutures(int quantity, {List<String> exclude}) {
+    if(debugLevel >= 1) {
+      print("[FUNCTION INVOKED] Backend.getExplorePostFutures");
+      print("[FUNCTION ARGS][Backend.getExplorePostFutures] quantity: ${quantity.toString()}, exclude: ${exclude.toString()}");
+    }
+
+    return getExplorePostIDs(quantity, exclude: exclude).then((response) {
+      List hitList = json.decode(response.body)['hits']['hits'];
+      List<Future<DocumentSnapshot>> postFutures = [];
+      for(int counter = 0; counter < hitList.length; counter++) {
+        postFutures.add(getPost(hitList[counter]['_source']['firebaseID']));
+      }
+      return postFutures;
+    });
+  }
+
+  Future<http.Response> getExplorePostIDs(quantity, {List<String> exclude}) async {
+    if(debugLevel >= 1) {
+      print("[FUNCTION INVOKED] Backend.getExplorePostIDs");
+      print("[FUNCTION ARGS][Backend.getExplorePostIDs] quantity: ${quantity.toString()}, exclude: ${exclude.toString()}");
+    }
+
+    if(exclude==null) {
+      exclude = [];
+    }
+
+    String excludedPostsString;
+
+    if(exclude.length != 0) {
+      excludedPostsString = '[';
+      for (int counter = 0; counter < exclude.length - 1; counter++) {
+        excludedPostsString = excludedPostsString + '"${exclude[counter]}",';
+      }
+      excludedPostsString =
+          excludedPostsString + '"${exclude[exclude.length - 1]}"]';
+    } else {
+      excludedPostsString = '[]';
+    }
+
+    int currentMillisecondsSinceEpoch = DateTime.now().toUtc().millisecondsSinceEpoch;
+    int fiveDaysInSeconds = 60*60*24*50;
+    int currentSecondsSinceEpochFiveDaysAgo = (currentMillisecondsSinceEpoch/1000).floor() - fiveDaysInSeconds;
+
+    var newPostsQueryURL = 'https://7ee3335fb14040269b50b807934bf5d0.europe-west2.gcp.elastic-cloud.com:9243/posts/_search';
+    var newPostsQueryBody = '{"size":${quantity.toString()} ,"query": {"bool": {"must" : [{"range" : {"timePosted" : {"gt" : $currentSecondsSinceEpochFiveDaysAgo}}}],"must_not": [{"ids": {"values": $excludedPostsString }}]}},"sort":{"likeCounter":"desc"}}';
+    return http.post(newPostsQueryURL, body: newPostsQueryBody, headers: {'Authorization':'Basic ZWxhc3RpYzpGcWFweTJhSFRnOGo4QWlSa3Z1NDR4aTA=','Content-Type': 'application/json'});
+  }
+
+  Future<http.Response> getRecommendedPostIDs({List<String> excluded}) async {
     if(debugLevel >= 1) {
       print("[FUNCTION INVOKED] Backend.getRecommendedPostIDs");
     }
@@ -103,6 +156,12 @@ class Backend implements BaseBackend {
     var likedPostsResponse = await http.get(likedPostsUrl, headers: {'Authorization':'Basic ZWxhc3RpYzpGcWFweTJhSFRnOGo4QWlSa3Z1NDR4aTA='});
     List likedPosts = json.decode(likedPostsResponse.body)['likes'];
     List viewedPosts = json.decode(likedPostsResponse.body)['viewedPosts'];
+
+    print("viewed posts: " + viewedPosts.toString());
+
+    if(excluded != null) {
+      viewedPosts.addAll(excluded);
+    }
 
     int currentMillisecondsSinceEpoch = DateTime.now().toUtc().millisecondsSinceEpoch;
     int fiveDaysInSeconds = 60*60*24*50;
@@ -158,6 +217,7 @@ class Backend implements BaseBackend {
       viewedPostsString = '[]';
     }
 
+
     var url = 'https://7ee3335fb14040269b50b807934bf5d0.europe-west2.gcp.elastic-cloud.com:9243/interactions/_search';
     var body = '{ "query": { "terms": { "likes": $likedPostsString, "boost": 1.0 } }, "aggs": { "likedPosts": { "terms": { "field": "likes", "include": $newPostsString,"exclude": $viewedPostsString, "min_doc_count": 1 } }, "viewedPosts": { "terms": { "field": "viewedPosts", "exclude": $viewedPostsString, "min_doc_count": 1 } }, "unique_posts": { "cardinality": { "field": "likes" } } } }';
     return http.post(url, body: body, headers: {'Authorization':'Basic ZWxhc3RpYzpGcWFweTJhSFRnOGo4QWlSa3Z1NDR4aTA=','Content-Type': 'application/json'});
@@ -189,21 +249,42 @@ class Backend implements BaseBackend {
       var popularPostsQueryURL = 'https://7ee3335fb14040269b50b807934bf5d0.europe-west2.gcp.elastic-cloud.com:9243/interactions/_search';
       var popularPostsQueryBody = '{"size": 0,"aggs": {"likedPosts": {"terms": {"field": "likes", "exclude": $excludedPostsString, "min_doc_count": 1}},"unique_posts": {"cardinality": {"field": "likes"}}}}';
       return http.post(popularPostsQueryURL, body: popularPostsQueryBody,
-          headers: {
-            'Authorization': 'Basic ZWxhc3RpYzpGcWFweTJhSFRnOGo4QWlSa3Z1NDR4aTA=',
-            'Content-Type': 'application/json'
-          });
+        headers: {
+          'Authorization': 'Basic ZWxhc3RpYzpGcWFweTJhSFRnOGo4QWlSa3Z1NDR4aTA=',
+          'Content-Type': 'application/json'
+        }
+      );
     }
   }
 
-  Future<List<Future<DocumentSnapshot>>> getRecommendedPosts() async {
+  Future<http.Response> getNewPostsWithLowInteraction(List exclude) {
+    String excludedPostsString;
+
+    if(exclude.length != 0) {
+      excludedPostsString = '[';
+      for (int counter = 0; counter < exclude.length - 1; counter++) {
+        excludedPostsString = excludedPostsString + '"${exclude[counter]}",';
+      }
+      excludedPostsString =
+          excludedPostsString + '"${exclude[exclude.length - 1]}"]';
+    } else {
+      excludedPostsString = '[]';
+    }
+    int numberOfNewPosts = 80;
+    var newPostsQueryURL = 'https://7ee3335fb14040269b50b807934bf5d0.europe-west2.gcp.elastic-cloud.com:9243/posts/_search';
+    var lowInteractionCeiling = 10;
+    var newPostsQueryBody = '{"size":${numberOfNewPosts.toString()} ,"query": {"bool": {"must" : [{"range" : {"timePosted" : {"gt" : 159085506}}},{"range" : {"interactionCounter" : {"lte" : ${lowInteractionCeiling.toString()} }}}],"must_not": [{"ids": {"values": $excludedPostsString }}]}},"sort":{"timePosted":"desc"}}';
+    return http.post(newPostsQueryURL, body: newPostsQueryBody, headers: {'Authorization':'Basic ZWxhc3RpYzpGcWFweTJhSFRnOGo4QWlSa3Z1NDR4aTA=','Content-Type': 'application/json'});
+  }
+
+  Future<List<Future<DocumentSnapshot>>> getRecommendedPosts({List<String> excluded}) async {
     if(debugLevel >= 1) {
       print("[FUNCTION INVOKED] Backend.getRecommendedPosts");
     }
 
     int temp_target = 20;
 
-    return getRecommendedPostIDs().then((response) async {
+    return getRecommendedPostIDs(excluded: excluded).then((response) async {
       List buckets = json.decode(response.body)['aggregations']['likedPosts']['buckets'];
       print("recommended posts: " + buckets.toString());
 
@@ -212,8 +293,17 @@ class Backend implements BaseBackend {
         documentIDs.add(buckets[counter]['key']);
       }
 
+      String firestoreID = await getOwnFirestoreUserID();
+      var likedPostsUrl = 'https://7ee3335fb14040269b50b807934bf5d0.europe-west2.gcp.elastic-cloud.com:9243/interactions/_doc/$firestoreID/_source';
+      var likedPostsResponse = await http.get(likedPostsUrl, headers: {'Authorization':'Basic ZWxhc3RpYzpGcWFweTJhSFRnOGo4QWlSa3Z1NDR4aTA='});
+      List viewedPosts = json.decode(likedPostsResponse.body)['viewedPosts'];
+
+      if(excluded != null) {
+        documentIDs.addAll(excluded);
+      }
+
       if(documentIDs.length < temp_target) {
-        http.Response popularPostResponse = await getPopularPostIDs(exclude: documentIDs);
+        http.Response popularPostResponse = await getPopularPostIDs(exclude: documentIDs + viewedPosts);
         print(popularPostResponse.body);
         List popularPostBuckets = json.decode(popularPostResponse.body)['aggregations']['likedPosts']['buckets'];
         print("popular posts: " + popularPostBuckets.toString());
@@ -221,6 +311,26 @@ class Backend implements BaseBackend {
           documentIDs.add(popularPostBuckets[counter]['key']);
         }
       }
+
+      http.Response lowInteractionPostsResponse = await getNewPostsWithLowInteraction(documentIDs);
+      List lowInteractionPostList = json.decode(lowInteractionPostsResponse.body)['hits']['hits'];
+
+      List<String> lowInteractionPostRandomSelection = [];
+
+      int desiredNumberOfPosts = 5;
+      double addProbability = desiredNumberOfPosts/lowInteractionPostList.length;
+      Random rand = new Random();
+
+      for(int counter = 0; counter < lowInteractionPostList.length; counter++) {
+        if(rand.nextDouble() < addProbability) {
+          lowInteractionPostRandomSelection.add(lowInteractionPostList[counter]['_source']['firebaseID']);
+        }
+      }
+
+      print("low interaction posts: " + lowInteractionPostList.toString());
+      print("low interaction posts selected: " + lowInteractionPostRandomSelection.toString());
+
+      documentIDs = randomlyInsert(documentIDs, lowInteractionPostRandomSelection);
 
       List<Future<DocumentSnapshot>> postFutures = [];
       print("documentIDs: " + documentIDs.toString());
@@ -799,5 +909,27 @@ class Backend implements BaseBackend {
         'fcmToken':token
       });
     });
+  }
+
+  List<String> randomlyInsert(List<String> inPlaceList, List<String> insertableList) {
+    List<bool> insertHereList = [];
+    for(int counter = 0; counter < inPlaceList.length; counter++) {
+      insertHereList.add(false);
+    }
+    for(int counter = 0; counter < insertableList.length; counter++) {
+      insertHereList.add(true);
+    }
+    insertHereList.shuffle();
+    List<String> spikedList = [];
+    for(int counter = 0; counter < insertHereList.length; counter++) {
+      if(insertHereList[counter]) {
+        spikedList.add(insertableList[0]);
+        insertableList.removeAt(0);
+      } else {
+        spikedList.add(inPlaceList[0]);
+        inPlaceList.removeAt(0);
+      }
+    }
+    return spikedList;
   }
 }

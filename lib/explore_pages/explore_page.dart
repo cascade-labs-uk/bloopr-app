@@ -86,13 +86,15 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   Widget buildSearch() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0,0,0,0),
-      child: Container(
-        height: searchBarHeight,
-        child: ExploreSearchBar(
-          openSearch: openSearch,
-          closeSearch: closeSearch,
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8,8,8,8),
+        child: Container(
+          height: searchBarHeight,
+          child: ExploreSearchBar(
+            openSearch: openSearch,
+            closeSearch: closeSearch,
+          ),
         ),
       ),
     );
