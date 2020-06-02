@@ -16,7 +16,7 @@ class ExplorePage extends StatefulWidget {
 }
 
 class _ExplorePageState extends State<ExplorePage> {
-  double originalSearchBarHeight = 80.0;
+  double originalSearchBarHeight = 40.0;
   double expandedSearchBarHeight;
   double searchBarHeight;
   bool searchOpen;
@@ -86,13 +86,15 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   Widget buildSearch() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8,0,8,0),
-      child: Container(
-        height: searchBarHeight,
-        child: ExploreSearchBar(
-          openSearch: openSearch,
-          closeSearch: closeSearch,
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8,8,8,8),
+        child: Container(
+          height: searchBarHeight,
+          child: ExploreSearchBar(
+            openSearch: openSearch,
+            closeSearch: closeSearch,
+          ),
         ),
       ),
     );

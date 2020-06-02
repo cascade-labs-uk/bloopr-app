@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-//import 'package:flappy_search_bar/flappy_search_bar.dart';
-import 'package:blooprtest/modified_packages/flappy_search_bar_modified.dart' as fsb;
+import 'package:flappy_search_bar/flappy_search_bar.dart' as fsb;
 import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/material.dart';
 import 'package:blooprtest/config.dart';
@@ -38,10 +37,6 @@ class _ExploreSearchBarState extends State<ExploreSearchBar> {
       debounceDuration: Duration(milliseconds: 250),
       onSearch: search,
       onCancelled: widget.closeSearch,
-      searchBarStyle: fsb.SearchBarStyle(
-        searchBarHeight: 40,
-        padding: EdgeInsets.all(0)
-      ),
       onItemFound: (SearchResult searchResult, int index) {
         return ListTile(
           onTap: () {
