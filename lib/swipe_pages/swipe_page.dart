@@ -77,53 +77,18 @@ class _SwipePageState extends State<SwipePage> {
           IconButton(
             icon: Icon(Constants.SWIPE_PAGE_ICON, size: 32.0),
             color: Constants.HIGHLIGHT_COLOR,
-            onPressed: (){print("home pressed");},
+            onPressed: () {
+              print("home pressed");
+            },
           ),
           IconButton(
-            icon: Icon(Constants.PROFILE_PAGE_ICON, size: 32.0),
-            color: Constants.INACTIVE_COLOR_DARK,
-            onPressed: () {
-              print("go to profile page button pressed");
-              widget.toMyProfilePage();
-            }
+              icon: Icon(Constants.PROFILE_PAGE_ICON, size: 32.0),
+              color: Constants.INACTIVE_COLOR_DARK,
+              onPressed: () {
+                print("go to profile page button pressed");
+                widget.toMyProfilePage();
+              }
           )
-        ],
-      ),
-    );
-  }
-
-  Widget buttonsRow() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 48.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          FloatingActionButton(
-            mini: true,
-            onPressed: () {},
-            backgroundColor: Colors.white,
-            child: Icon(Icons.loop, color: Colors.yellow),
-          ),
-          Padding(padding: EdgeInsets.only(right: 8.0)),
-          FloatingActionButton(
-            onPressed: () {},
-            backgroundColor: Colors.white,
-            child: Icon(Icons.close, color: Colors.red),
-          ),
-          Padding(padding: EdgeInsets.only(right: 8.0)),
-          FloatingActionButton(
-            onPressed: () {},
-            backgroundColor: Colors.white,
-            child: Icon(Icons.favorite, color: Colors.green),
-          ),
-          Padding(padding: EdgeInsets.only(right: 8.0)),
-          FloatingActionButton(
-            mini: true,
-            onPressed: () {},
-            backgroundColor: Colors.white,
-            child: Icon(Icons.star, color: Colors.blue),
-          ),
         ],
       ),
     );
