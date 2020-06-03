@@ -35,10 +35,10 @@ class _SendDialogState extends State<SendDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Send To"),
+      title: Text("Send To Friends"),
       content: Container(
         width: MediaQuery.of(context).size.width * 0.98,
-        height: 120.0,
+        height: 90.0,
         child: ListView(
           scrollDirection: Axis.horizontal,
           children: friendDocuments.map((friendDocument) =>
@@ -53,6 +53,8 @@ class _SendDialogState extends State<SendDialog> {
           ).toList(),
         ),
       ),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(15.0))),
     );
   }
 }
@@ -91,8 +93,8 @@ class _FriendWidgetState extends State<FriendWidget> {
         Widget child;
         if(snapshot.hasData) {
           child = Container(
-            height: 90,
-            width: 90,
+            height: 75,
+            width: 75,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -107,18 +109,18 @@ class _FriendWidgetState extends State<FriendWidget> {
                   child: !sent?ClipRRect(
                     child: Image.memory(
                       snapshot.data,
-                      width: 70,
-                      height: 70,
+                      width: 60,
+                      height: 60,
                     ),
                     borderRadius: BorderRadius.circular(35.0),
                   ):Icon(
                     Icons.check,
-                    size: 70,
+                    size: 60,
                     color: Constants.HIGHLIGHT_COLOR,
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0,5,0,0),
+                  padding: const EdgeInsets.fromLTRB(0,7.5,0,0),
                   child: Text(
                     widget.nickname,
                     overflow: TextOverflow.clip,
@@ -130,8 +132,8 @@ class _FriendWidgetState extends State<FriendWidget> {
           );
         } else {
           child = Container(
-            height: 90,
-            width: 90,
+            height: 75,
+            width: 75,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -146,20 +148,26 @@ class _FriendWidgetState extends State<FriendWidget> {
                   child: !sent?ClipRRect(
                     child: Image.asset(
                       'assets/profile_image_placeholder.png',
-                      width: 70,
-                      height: 70,
+                      width: 60,
+                      height: 60,
                     ),
                     borderRadius: BorderRadius.circular(35.0),
                   ):Icon(
                     Icons.check,
-                    size: 70,
+                    size: 60,
                     color: Constants.HIGHLIGHT_COLOR,
                   ),
                 ),
-                Text(
-                  widget.nickname,
-                  overflow: TextOverflow.clip,
-                  softWrap: false,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0,7.5,0,0),
+                  child: Text(
+                    widget.nickname,
+                    overflow: TextOverflow.clip,
+                    softWrap: false,
+                    style: TextStyle(
+                      fontSize: 15,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -168,7 +176,7 @@ class _FriendWidgetState extends State<FriendWidget> {
         return GestureDetector(
           key: widget.key,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(5.0,0,5.0,0),
+            padding: const EdgeInsets.fromLTRB(0,0,0,0),
             child: child,
           ),
           onTap: () {

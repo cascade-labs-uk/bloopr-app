@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void moveToForgotPassword() {
     formKey.currentState.reset();
-    Navigator.push(context, MaterialPageRoute(builder: (context) => CreateAccountPage(onSignedIn: widget.onSignedIn, auth: widget.auth)));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => Center(child: CreateAccountPage(onSignedIn: widget.onSignedIn, auth: widget.auth))));
   }
 
   @override
@@ -174,14 +174,16 @@ class _LoginPageState extends State<LoginPage> {
       Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-            child: FlatButton(
-              child: Text(
-                'Forgot Passsword?',
-                style: Constants.TEXT_STYLE_HINT_LIGHT,
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+              child: FlatButton(
+                child: Text(
+                  'Forgot Passsword?',
+                  style: Constants.TEXT_STYLE_HINT_LIGHT,
+                ),
+                onPressed: moveToForgotPassword,
               ),
-              onPressed: moveToForgotPassword,
             ),
           ),
         ],

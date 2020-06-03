@@ -91,7 +91,7 @@ class _ViewPostPageState extends State<ViewPostPage> {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(
-        elevation: 0,
+        elevation: 0.75,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios, color: Constants.INACTIVE_COLOR_DARK, size: 22.5,),
           onPressed: () {
@@ -106,7 +106,7 @@ class _ViewPostPageState extends State<ViewPostPage> {
         child: Column(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.fromLTRB(14,8,14,8),
+              padding: const EdgeInsets.fromLTRB(14,2.5,14,2.5),
               child: Row( // TODO: add an onTap listener that opens the poster's profile page
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
@@ -123,8 +123,8 @@ class _ViewPostPageState extends State<ViewPostPage> {
                       } else {
                         displayedImage = Image.asset(
                           'assets/profile_image_placeholder.png',
-                          height: 37,
-                          width: 37,
+                          height: 30,
+                          width: 30,
                         );
                       }
                       return ClipRRect(
@@ -159,26 +159,36 @@ class _ViewPostPageState extends State<ViewPostPage> {
                   ),
                   Visibility(
                     visible: widget.isSavedPost == false,
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5.0),
-                          side: BorderSide(
-                            color: Constants.DARK_TEXT,
-                            width: 0.5,
-                          )
-                      ),
-                      elevation: 0,
-                      color: Constants.BACKGROUND_COLOR,
-                      child: reported?Text('Reported'):Text('Report'),
+                    child: IconButton(
+                      icon: Icon(Icons.more_horiz, color: Constants.DARK_TEXT, size: 22.5,),
                       onPressed: () {
-                        if(reported == false) {
-                          setState(() {
-                            reported = true;
-                          });
-                          widget.backend.reportMeme(widget.memeDocument.documentID);
-                        }
+
                       },
-                    )
+                    ),
+
+
+
+
+//                    child: RaisedButton(
+//                      shape: RoundedRectangleBorder(
+//                          borderRadius: BorderRadius.circular(5.0),
+//                          side: BorderSide(
+//                            color: Constants.DARK_TEXT,
+//                            width: 0.5,
+//                          )
+//                      ),
+//                      elevation: 0,
+//                      color: Constants.BACKGROUND_COLOR,
+//                      child: reported?Text('Reported'):Text('Report'),
+//                      onPressed: () {
+//                        if(reported == false) {
+//                          setState(() {
+//                            reported = true;
+//                          });
+//                          widget.backend.reportMeme(widget.memeDocument.documentID);
+//                        }
+//                      },
+//                    )
                   )
                 ],
               ),
@@ -187,14 +197,14 @@ class _ViewPostPageState extends State<ViewPostPage> {
               tag: widget.memeDocument.documentID,
               child: widget.memeImage,
 //            child: Padding(
-//              padding: const EdgeInsets.all(6.0),
-//              child: Card(
-//                child: widget.memeImage,
-//                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-//                elevation: 3,
-//                clipBehavior: Clip.antiAlias,
-//              ),
-//            ),
+////              padding: const EdgeInsets.all(6.0),
+////              child: Card(
+////                child: widget.memeImage,
+////                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+////                elevation: 3,
+////                clipBehavior: Clip.antiAlias,
+////              ),
+////            ),
             ),
             Text(
               widget.memeDocument.data["caption"],
@@ -248,7 +258,7 @@ class _ViewPostPageState extends State<ViewPostPage> {
                               )
                           )
                       ),
-                      validator: (value) => value.isEmpty ? 'Write your comment fool' : null,
+                      validator: (value) => value.isEmpty ? 'Type Something...' : null,
                       obscureText: false,
                       onSaved: (value) => userCommentText = value,
                     ),

@@ -41,7 +41,7 @@ class _UploadProfilePictureState extends State<UploadProfilePicture> {
           rectY: 0,
           rectWidth: 90,
           rectHeight: 100,
-          aspectRatioLockEnabled: true
+          aspectRatioLockEnabled: true,
       )
     );
 

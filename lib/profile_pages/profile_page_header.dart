@@ -1,7 +1,8 @@
 import 'dart:core';
-
+import 'dart:io' show Platform;
 import 'package:blooprtest/backend.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:blooprtest/upload_pages/upload_profile_picture.dart';
 import 'package:blooprtest/profile_pages/see_follow_list.dart';
@@ -107,6 +108,28 @@ class _ProfilePageHeaderState extends State<ProfilePageHeader> {
               ),
             ),
             onTap: () {
+//              if (Platform.isIOS) {
+//                showCupertinoModalPopup(
+//                  context: context,
+//                  builder: (BuildContext context) => CupertinoActionSheet(
+//                    title: Text("Change Profile Image"),
+//                    actions: <Widget>[
+//                      CupertinoActionSheetAction(
+//                        child: Text("Take a Photo"),
+//                      ),
+//                      CupertinoActionSheetAction(
+//                        child: Text("Choose From Library"),
+//                        onPressed: () {
+//
+//                        },
+//                      ),
+//                    ],
+//                    cancelButton: CupertinoActionSheetAction(
+//                      child: Text("Cancel"),
+//                    ),
+//                  ),
+//                );
+//              }
               if(widget.isOwnProfile) {
                 openUploadProfilePicture(context);
               }
