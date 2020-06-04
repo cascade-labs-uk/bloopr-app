@@ -39,6 +39,7 @@ dependencies:
   url_launcher: ^4.0.3
   flutter_image_compress: ^0.6.8
   firebase_messaging: ^6.0.16
+  image: ^2.1.13
 
   # allows for toast creation across platforms
   fluttertoast: ^4.0.0
