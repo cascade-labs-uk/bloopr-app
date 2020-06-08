@@ -30,7 +30,8 @@ class _SwipePageState extends State<SwipePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+      child: Scaffold(
 //      appBar: AppBar(
 //        elevation: 0.0,
 //        centerTitle: true,
@@ -47,18 +48,19 @@ class _SwipePageState extends State<SwipePage> {
 //              icon: Icon(Icons.question_answer, color: Colors.grey)),
 //        ],
 //      ),
-      backgroundColor: Constants.SECONDARY_COLOR,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          CardsSectionAlignment(context),
-          Container(
-            color: Constants.OUTLINE_COLOR,
-            width: double.infinity,
-            height: 0.5,
-          ),
-          navigationBar()
-        ],
+        backgroundColor: Constants.SECONDARY_COLOR,
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            CardsSectionAlignment(context),
+            Container(
+              color: Constants.OUTLINE_COLOR,
+              width: double.infinity,
+              height: 0.5,
+            ),
+            navigationBar()
+          ],
+        ),
       ),
     );
   }
