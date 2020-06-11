@@ -1,3 +1,4 @@
+import 'package:blooprtest/asset_management/custom_icons_icons.dart';
 import 'package:blooprtest/backend.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -58,6 +59,7 @@ class _gridSelectSliverDelegate extends SliverPersistentHeaderDelegate {
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Visibility(
                 visible: isOwnProfile,
@@ -67,16 +69,16 @@ class _gridSelectSliverDelegate extends SliverPersistentHeaderDelegate {
                     gridType = GridType.savedMemes;
                     viewSaved();
                   },
-                  color: gridType==GridType.savedMemes?Constants.HIGHLIGHT_COLOR:Constants.INACTIVE_COLOR_DARK,
+                  color: gridType==GridType.savedMemes?Constants.DARK_TEXT:Constants.INACTIVE_COLOR_DARK,
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.grid_on),
+                icon: Icon(Constants.GRID, size: 25.0,),
                 onPressed: (){
                   gridType = GridType.posts;
                   viewPosts();
                 },
-                color: gridType==GridType.posts?Constants.HIGHLIGHT_COLOR:Constants.INACTIVE_COLOR_DARK,
+                color: gridType==GridType.posts?Constants.DARK_TEXT:Constants.INACTIVE_COLOR_DARK,
               ),
               Visibility(
                 visible: isOwnProfile,
@@ -87,7 +89,7 @@ class _gridSelectSliverDelegate extends SliverPersistentHeaderDelegate {
                     openUploadMeme(context);
                   },
                 ),
-              )
+              ),
             ],
           ),
           Container(
@@ -110,17 +112,19 @@ class _gridSelectSliverDelegate extends SliverPersistentHeaderDelegate {
 
 class _BaseProfilePageState extends State<BaseProfilePage> {
   GridType _currentGrid = GridType.posts;
-  List<Future> postFutures = [];
-  List<Future> savedPostFutures = [];
+  List<Future> postImageFutures = [];
+  List<Future> savedPostImageFutures = [];
+  List<DocumentSnapshot> postDocuments = [];
   List<DocumentSnapshot> savedPostDocuments = [];
   int maxImageSize = 7 * 1024 * 1024;
 
-  Future openViewMemePage(context, memeImage, memeDocument,{isSavedPost = false}) async {
+  Future openViewMemePage(context, Image memeImage, DocumentSnapshot memeDocument, String heroTag,{isSavedPost = false}) async {
     Navigator.push(context, MaterialPageRoute(builder: (context) => ViewPostPage(
       memeDocument: memeDocument,
       memeImage: memeImage,
       isSavedPost: isSavedPost,
       pageTitle: isSavedPost?"Saved":"Post",
+      tag: heroTag,
     )));
   }
 
@@ -134,7 +138,8 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
         FirebaseStorage.instance.getReferenceFromUrl(querySnapshot.documents[counter].data['imageURL'])
           .then((imageReference) {
             setState(() {
-              postFutures.add(imageReference.getData(maxImageSize));
+              postImageFutures.add(imageReference.getData(maxImageSize));
+              postDocuments.add(querySnapshot.documents[counter]);
             });
         });
       }
@@ -143,15 +148,12 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
     widget.backend.getUserSaveInteractions(widget.displayedUserFirestoreID).then((querySnapshot) {
       print(querySnapshot.documents[0].data);
       for (int counter = 0; counter < querySnapshot.documents.length; counter++) {
-        setState(() {
-          savedPostFutures.add(
-              widget.backend.getImageFromPostID(querySnapshot.documents[counter].data['postID'])
-          );
-        });
-
-        widget.backend.getPost(querySnapshot.documents[counter].data['postID']).then((postSnapshot) {
+        widget.backend.getPost(querySnapshot.documents[counter].data['postID']).then((postDocument) {
           setState(() {
-            savedPostDocuments.add(postSnapshot);
+            savedPostImageFutures.add(
+                widget.backend.getImageFromPostID(postDocument.documentID)
+            );
+            savedPostDocuments.add(postDocument);
           });
         });
       }
@@ -176,7 +178,7 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
       child: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
-            expandedHeight: 440.0,
+            expandedHeight: 448.0,
             flexibleSpace: FlexibleSpaceBar(
               background: ProfilePageHeader(
                 userID: widget.displayedUserID,
@@ -198,7 +200,7 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
 
   SliverGrid buildImageGrid() {
     if(_currentGrid == GridType.posts) {
-      if(postFutures.length == 0) {
+      if(postImageFutures.length == 0) {
         return SliverGrid.count(
           crossAxisCount: 1,
           children: [Container(
@@ -207,7 +209,7 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
             child: Center(
               heightFactor: 120,
               child: Text(
-                'You havent posted anything!',
+                "You haven't posted anything!",
                 style: Constants.TEXT_STYLE_CAPTION_GREY,
               ),
             ),
@@ -216,11 +218,11 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
       } else {
         return SliverGrid.count(
           crossAxisCount: 3,
-          children: gridChildren(postFutures),
+          children: postedPostGridChildren(postImageFutures),
         );
       }
     } else if(_currentGrid == GridType.savedMemes) {
-      if(savedPostFutures.length == 0) {
+      if(savedPostImageFutures.length == 0) {
         return SliverGrid.count(
           crossAxisCount: 1,
           children: [Container(
@@ -237,64 +239,45 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
       } else {
         return SliverGrid.count(
           crossAxisCount: 3,
-          children: gridChildren(savedPostFutures, isSavedPost: true),
+          children: savedPostGridChildren(savedPostImageFutures),
         );
       }
     }
   }
 
-  List<Widget> gridChildren(List<Future> postFutures, {isSavedPost = false}) {
-    List<FutureBuilder> children = [];
+  List<Widget> savedPostGridChildren(List<Future> postFutures) {
+    List<Widget> children = [];
 
     for (int counter = 0; counter < postFutures.length; counter++) {
+      String heroTag = savedPostDocuments[counter].documentID + counter.toString();
       children.add(
-        FutureBuilder(
-          future: postFutures[counter],
-          builder: (context, snapshot) {
-            Widget child;
-            if(snapshot.hasData) {
-              child = GestureDetector(
-                onTap: () {
-                  openViewMemePage(
-                    context,
-                    Image.memory(
-                      snapshot.data,
-                      fit: BoxFit.cover,
-                    ),
-                    savedPostDocuments[counter],
-                    isSavedPost: isSavedPost,
-                  );
-                },
-                child: Hero(
-                  tag: savedPostDocuments[counter].documentID,
-                  child: Image.memory(
-                    snapshot.data,
+        GestureDetector(
+          onTap: () {
+            openViewMemePage(
+              context,
+              Image.network(savedPostDocuments[counter].data['imageURL']),
+              savedPostDocuments[counter],
+              heroTag,
+              isSavedPost: true
+            );
+          },
+          child: Padding(
+            padding: counter%3==1?EdgeInsets.fromLTRB(1.5,0.75,1.5,0.75):EdgeInsets.fromLTRB(0,0.75,0,0.75),
+            child: Container(
+              color: Constants.SECONDARY_COLOR,
+              child: Hero(
+                  tag: heroTag,
+                  child: Image.network(
+                    savedPostDocuments[counter].data['imageURL'],
                     height: 100,
                     width: 100,
                     fit: BoxFit.cover,
-                  ),
-                ),
-              );
-            } else {
-              child = Container(
-                color: Constants.SECONDARY_COLOR,
-                height: 100,
-                width: 100,
-              );
-            }
-            if(counter%3==1) {
-              return Padding(
-                child: child,
-                padding: EdgeInsets.fromLTRB(1.5, 0.75, 1.5, 0.75),
-              );
-            } else {
-              return Padding(
-                child: child,
-                padding: EdgeInsets.fromLTRB(0, 0.75, 0, 0.75),
-              );
-            }
-            return child;
-          },
+                    cacheWidth: 200,
+                    cacheHeight: 200,
+                  )
+              ),
+            ),
+          ),
         )
       );
     }
@@ -302,36 +285,44 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
     return children;
   }
 
-  List<Widget> placeholderGrid() {
-    return [
-      Container(color: Colors.red, height: 150.0),
-      Container(color: Colors.purple, height: 150.0),
-      Container(color: Colors.green, height: 150.0),
-      Container(color: Colors.orange, height: 150.0),
-      Container(color: Colors.yellow, height: 150.0),
-      Container(color: Colors.pink, height: 150.0),
-      Container(color: Colors.cyan, height: 150.0),
-      Container(color: Colors.indigo, height: 150.0),
-      Container(color: Colors.blue, height: 150.0),
-      Container(color: Colors.red, height: 150.0),
-      Container(color: Colors.purple, height: 150.0),
-      Container(color: Colors.green, height: 150.0),
-      Container(color: Colors.orange, height: 150.0),
-      Container(color: Colors.yellow, height: 150.0),
-      Container(color: Colors.pink, height: 150.0),
-      Container(color: Colors.cyan, height: 150.0),
-      Container(color: Colors.indigo, height: 150.0),
-      Container(color: Colors.blue, height: 150.0),
-      Container(color: Colors.red, height: 150.0),
-      Container(color: Colors.purple, height: 150.0),
-      Container(color: Colors.green, height: 150.0),
-      Container(color: Colors.orange, height: 150.0),
-      Container(color: Colors.yellow, height: 150.0),
-      Container(color: Colors.pink, height: 150.0),
-      Container(color: Colors.cyan, height: 150.0),
-      Container(color: Colors.indigo, height: 150.0),
-      Container(color: Colors.blue, height: 150.0),
-    ];
+  List<Widget> postedPostGridChildren(List<Future> postFutures) {
+    List<Widget> children = [];
+
+    for (int counter = 0; counter < postFutures.length; counter++) {
+      String heroTag = postDocuments[counter].documentID + counter.toString();
+      children.add(
+          GestureDetector(
+            onTap: () {
+              openViewMemePage(
+                context,
+                Image.network(postDocuments[counter].data['imageURL']),
+                postDocuments[counter],
+                heroTag,
+                isSavedPost: false
+              );
+            },
+            child: Padding(
+              padding: counter%3==1?EdgeInsets.fromLTRB(1.5,0.75,1.5,0.75):EdgeInsets.fromLTRB(0,0.75,0,0.75),
+              child: Container(
+                color: Constants.SECONDARY_COLOR,
+                child: Hero(
+                    tag: heroTag,
+                    child: Image.network(
+                      postDocuments[counter].data['imageURL'],
+                      height: 100,
+                      width: 100,
+                      fit: BoxFit.cover,
+                      cacheWidth: 200,
+                      cacheHeight: 200,
+                    )
+                ),
+              ),
+            ),
+          )
+      );
+    }
+
+    return children;
   }
 
   SliverPersistentHeader buildGridSelect() {

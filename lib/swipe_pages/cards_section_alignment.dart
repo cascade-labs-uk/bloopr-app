@@ -36,6 +36,7 @@ class _CardsSectionState extends State<CardsSectionAlignment>
     with SingleTickerProviderStateMixin { //SingleTicherProviderStateMixin allows us to use vsync, which ensure no unnecessary resources are consumed off-screen
 
   int cardsCounter = 0;
+  List<String> postIDs = [];
 
   List<ProfileCardAlignment> cards = List();
   AnimationController _swipeController;
@@ -54,36 +55,12 @@ class _CardsSectionState extends State<CardsSectionAlignment>
 
     addCards(10); // add initial 10 cards
 
-//    imageURLFuture.then((URL) {
-//      // Init cards
-//      for (cardsCounter = 0; cardsCounter < 3; cardsCounter++) {
-//        cards.add(ProfileCardAlignment(cardsCounter, URL.data['imageURL']));
-//      }
-//
-//      frontCardAlign = cardsAlign[2];
-//
-//      // Init the animation controller
-//      _controller =
-//          AnimationController(
-//              duration: Duration(milliseconds: 700), vsync: this);
-//      _controller.addListener(() => setState(() {}));
-//      _controller.addStatusListener((
-//          AnimationStatus status) { // calls when the animation is done
-//        if (status == AnimationStatus
-//            .completed) changeCardsOrder(); // TODO: add the refreshing of new content here
-//      });
-//    });
-
-//    for (cardsCounter = 0; cardsCounter < 3; cardsCounter++) {
-//      cards.add(ProfileCardAlignment(imageURL: 'gs://bloopr-test.appspot.com/user/images/T7ZOeKo9diTXs2ARxBmb1lbLEjI3/more-coronavirus-memes4.jpg', caption:''));
-//    }
-
     frontCardAlign = cardsAlign[2];
 
     // Init the animation controller
     _swipeController =
         AnimationController(
-            duration: Duration(milliseconds: 700), vsync: this);
+            duration: Duration(milliseconds: Constants.SWIPE_ANIMATION_DURATION), vsync: this);
     _swipeController.addListener(() => setState(() {}));
     _swipeController.addStatusListener((
         AnimationStatus status) { // calls when the animation is done
@@ -103,34 +80,28 @@ class _CardsSectionState extends State<CardsSectionAlignment>
   }
 
   void addCards(int numberOfCards) {
-    backend.getSentPosts().then((postFutures) {
+    backend.getRecommendedPosts(excluded: postIDs).then((postFutures) {
       for (int counter = 0; counter < postFutures.length; counter++) {
         postFutures[counter].then((postDocument) {
-          String memeURL = postDocument.data['imageURL'];
-          String memeCaption = postDocument.data['caption'];
-          String memePostID = postDocument.documentID;
-          if(counter < 3) { // only set state for the first three cards, and let the rest update in the background as they do not affect the widget tree
-            setState(() {
-              cards.add(ProfileCardAlignment(caption: memeCaption, imageURL: memeURL, postID: memePostID,key: UniqueKey(),));
-            });
-          } else {
-            cards.add(ProfileCardAlignment(caption: memeCaption, imageURL: memeURL, postID: memePostID,key: UniqueKey(),));
-          }
-        });
-      }
-    });
-    backend.getRecommendedPosts().then((postFutures) {
-      for (int counter = 0; counter < postFutures.length; counter++) {
-        postFutures[counter].then((postDocument) {
-          String memeURL = postDocument.data['imageURL'];
-          String memeCaption = postDocument.data['caption'];
-          String memePostID = postDocument.documentID;
-          if(counter < 3) { // only set state for the first three cards, and let the rest update in the background as they do not affect the widget tree
-            setState(() {
-              cards.add(ProfileCardAlignment(caption: memeCaption, imageURL: memeURL, postID: memePostID,key: UniqueKey(),));
-            });
-          } else {
-            cards.add(ProfileCardAlignment(caption: memeCaption, imageURL: memeURL, postID: memePostID,key: UniqueKey(),));
+          if(postDocument!=null) {
+            String memeURL = postDocument.data['imageURL'];
+            String memeCaption = postDocument.data['caption'];
+            String memePostID = postDocument.documentID;
+            postIDs.add(memePostID);
+            if (counter < 4) { // only set state for the first four cards, and let the rest update in the background as they do not affect the widget tree
+              print("adding card for meme: " + memePostID);
+              setState(() {
+                cards.add(ProfileCardAlignment(caption: memeCaption,
+                  imageURL: memeURL,
+                  postID: memePostID,
+                  key: UniqueKey(),));
+              });
+            } else {
+              cards.add(ProfileCardAlignment(caption: memeCaption,
+                imageURL: memeURL,
+                postID: memePostID,
+                key: UniqueKey(),));
+            }
           }
         });
       }
@@ -299,11 +270,13 @@ class _CardsSectionState extends State<CardsSectionAlignment>
 
       //remove 1 card and replace it with a new card in the background
       cards.removeAt(0);
-      addCards(1);
 
       frontCardAlign = defaultFrontCardAlign;
       frontCardRot = 0.0;
     });
+    if(cards.length < 10) {
+      addCards(10);
+    }
   }
 
   void animateCards() {

@@ -16,122 +16,111 @@ class ExploreGrid extends StatefulWidget {
 
 class _ExploreGridState extends State<ExploreGrid> {
 
-  List<Widget> items;
   ScrollController _scrollController = new ScrollController();
   List<Future> postFutures = [];
-  List<DocumentSnapshot> postDocuments = [];
+  List<String> currentPostIDs = [];
 
   @override
   void initState() {
     super.initState();
 
-    items = placeholderGrid();
-
     int startingPostNumber = 15;
 
-    addExplorePosts(startingPostNumber);
-    
+    addExplorePosts(startingPostNumber, currentPostIDs);
+
     _scrollController.addListener(() {
-      if(_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
-        addExplorePosts(9);
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+        if(currentPostIDs.length == postFutures.length && postFutures.length >= 15) {
+          addExplorePosts(9, currentPostIDs);
+        }
       }
     });
   }
 
-  Future openViewMemePage(context, memeImage, memeDocument, memeIndex) async {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ViewPostPage(memeDocument: memeDocument, memeImage: memeImage, pageTitle: "Explore",memeIndex: memeIndex,)));
+  Future openViewMemePage(BuildContext context, Image memeImage,
+      DocumentSnapshot memeDocument, String heroTag) async {
+    Navigator.push(context, MaterialPageRoute(builder: (context) =>
+        ViewPostPage(
+          memeDocument: memeDocument,
+          memeImage: memeImage,
+          pageTitle: "Explore",
+          tag: heroTag,)));
   }
 
-  void addExplorePosts(int number) {
-    widget.backend.getExplorePosts(number).then((postsQuerySnapshot) {
+  void addExplorePosts(int number, List<String> exclude) {
+    widget.backend.getExplorePostFutures(number,exclude: exclude).then((futuresList) {
+      print("futuresList: " + futuresList.toString());
       setState(() {
-        postDocuments.addAll(postsQuerySnapshot.documents);
+        postFutures.addAll(futuresList);
       });
-      for (int counter = 0; counter < postsQuerySnapshot.documents.length; counter++) {
-        setState(() {
-          postFutures.add(widget.backend.getImageFromLocation(postsQuerySnapshot.documents[counter].data['imageURL']));
-        });
-      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      itemCount: postDocuments.length,
+      itemCount: postFutures.length,
       controller: _scrollController,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3
+          crossAxisCount: 3
       ),
       itemBuilder: (BuildContext context, int index) {
-        return gridTile(postDocuments[index], index) ;
+        print("item build - index: ${index.toString()}");
+        return gridTile(postFutures[index], index);
       },
     );
   }
 
-  Widget gridTile(DocumentSnapshot postDocument, int index) {
-    String heroTag = postDocument.documentID + index.toString();
-
+  Widget gridTile(Future<DocumentSnapshot> postFuture, int index) {
     return FutureBuilder(
-      future: widget.backend.getImageFromLocation(postDocument.data['imageURL']),
-      builder: (context, snapshot) {
+      future: postFuture,
+      builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         Widget child;
         if(snapshot.hasData) {
+          currentPostIDs.add(snapshot.data.documentID);
           child = GestureDetector(
             onTap: () {
               openViewMemePage(
-                context,
-                Image.memory(snapshot.data),
-                postDocument,
-                index
+                  context,
+                  Image.network(snapshot.data.data['imageURL']),
+                  snapshot.data,
+                  snapshot.data.documentID + index.toString()
               );
             },
-            child: Hero(
-              tag: heroTag,
-              child: Image.memory(
-                snapshot.data,
-                height: 100,
-                width: 100,
-                fit: BoxFit.cover,
+            child: Padding(
+              padding: index % 3 == 1
+                  ? EdgeInsets.fromLTRB(1.5, 0.75, 1.5, 0.75)
+                  : EdgeInsets.fromLTRB(0, 0.75, 0, 0.75),
+              child: Container(
+                color: Constants.SECONDARY_COLOR,
+                child: Hero(
+                    tag: snapshot.data.documentID + index.toString(),
+                    child: Image.network(
+                      snapshot.data.data['imageURL'],
+                      height: 100,
+                      width: 100,
+                      fit: BoxFit.cover,
+                      cacheWidth: 200,
+                      cacheHeight: 200,
+                    )
+                ),
               ),
             ),
           );
         } else {
-          child = Container(
-            color: Constants.SECONDARY_COLOR,
-            height: 100,
-            width: 100,
+          child = Padding(
+            padding: index % 3 == 1
+                ? EdgeInsets.fromLTRB(1.5, 0.75, 1.5, 0.75)
+                : EdgeInsets.fromLTRB(0, 0.75, 0, 0.75),
+            child: Container(
+              color: Constants.SECONDARY_COLOR,
+              width: 100,
+              height: 100,
+            ),
           );
         }
-        if(index%3 == 1) {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(1.5,0.75,1.5,0.75),
-            child: child,
-          );
-        } else {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(0,0.75,0,0.75),
-            child: child,
-          );
-        }
+        return child;
       },
     );
-  }
-
-  List<Widget> placeholderGrid() {
-    return [
-      Container(color: Colors.red, height: 150.0),
-      Container(color: Colors.purple, height: 150.0),
-      Container(color: Colors.green, height: 150.0),
-      Container(color: Colors.orange, height: 150.0),
-      Container(color: Colors.yellow, height: 150.0),
-      Container(color: Colors.pink, height: 150.0),
-      Container(color: Colors.cyan, height: 150.0),
-      Container(color: Colors.indigo, height: 150.0),
-      Container(color: Colors.blue, height: 150.0),
-      Container(color: Colors.red, height: 150.0),
-      Container(color: Colors.purple, height: 150.0),
-      Container(color: Colors.green, height: 150.0),
-    ];
   }
 }

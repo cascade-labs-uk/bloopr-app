@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'cards_section_alignment.dart';
 import 'package:blooprtest/config.dart';
 import 'package:blooprtest/asset_management/my_flutter_app_icons.dart';
+import 'package:blooprtest/asset_management/custom_icons_icons.dart';
 
 class SwipePage extends StatefulWidget {
   SwipePage({this.auth, this.onSignedOut, this.toDiscoverPage, this.toMyProfilePage});
@@ -69,61 +70,26 @@ class _SwipePageState extends State<SwipePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
+          Spacer(),
           IconButton(
-            icon: Icon(Constants.EXPLORE_PAGE_ICON, size: 32.0,),
+            icon: Icon(Constants.EXPLORE_PAGE_UNSELECTED_ICON, size: 27.5,),
             color: Constants.INACTIVE_COLOR_DARK,
             onPressed: widget.toDiscoverPage,
           ),
+          Spacer(),
           IconButton(
-            icon: Icon(Constants.SWIPE_PAGE_ICON, size: 32.0),
-            color: Constants.HIGHLIGHT_COLOR,
+            icon: Icon(Constants.SWIPE_PAGE_SELECTED_ICON, size: 32.0),
             onPressed: (){print("home pressed");},
           ),
+          Spacer(),
           IconButton(
-            icon: Icon(Constants.PROFILE_PAGE_ICON, size: 32.0),
-            color: Constants.INACTIVE_COLOR_DARK,
+            icon: Icon(Constants.PROFILE_PAGE_UNSELECTED_ICON, size: 27.5),
             onPressed: () {
               print("go to profile page button pressed");
               widget.toMyProfilePage();
             }
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget buttonsRow() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 48.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          FloatingActionButton(
-            mini: true,
-            onPressed: () {},
-            backgroundColor: Colors.white,
-            child: Icon(Icons.loop, color: Colors.yellow),
           ),
-          Padding(padding: EdgeInsets.only(right: 8.0)),
-          FloatingActionButton(
-            onPressed: () {},
-            backgroundColor: Colors.white,
-            child: Icon(Icons.close, color: Colors.red),
-          ),
-          Padding(padding: EdgeInsets.only(right: 8.0)),
-          FloatingActionButton(
-            onPressed: () {},
-            backgroundColor: Colors.white,
-            child: Icon(Icons.favorite, color: Colors.green),
-          ),
-          Padding(padding: EdgeInsets.only(right: 8.0)),
-          FloatingActionButton(
-            mini: true,
-            onPressed: () {},
-            backgroundColor: Colors.white,
-            child: Icon(Icons.star, color: Colors.blue),
-          ),
+          Spacer(),
         ],
       ),
     );

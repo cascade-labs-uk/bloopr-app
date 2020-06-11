@@ -37,10 +37,17 @@ class _CommentCardState extends State<CommentCard> {
   @override
   void initState() {
     super.initState();
-
     setState(() {
-      commentText = widget.commentDocument.data['text'];
-      commenterNickname = widget.commentDocument.data['commenter name'];
+      if(widget.commentDocument.data['text'] != null) {
+        commentText = widget.commentDocument.data['text'];
+      } else {
+        commentText = 'Error 404';
+      }
+      if(widget.commentDocument.data['commenter name'] != null) {
+        commenterNickname = widget.commentDocument.data['commenter name'];
+      } else {
+        commenterNickname = 'Error 404';
+      }
       commentID = widget.commentDocument.documentID;
     });
 
@@ -64,7 +71,7 @@ class _CommentCardState extends State<CommentCard> {
           });
         } else {
           setState(() {
-            liked=true;
+            liked=false;
           });
         }
       });

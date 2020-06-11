@@ -6,13 +6,14 @@ import 'package:blooprtest/config.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ViewPostPage extends StatefulWidget {
-  ViewPostPage({this.memeImage, this.memeDocument, this.isSavedPost = false, this.pageTitle, this.memeIndex});
+  ViewPostPage({this.memeImage, this.memeDocument, this.isSavedPost = false, this.pageTitle, this.memeIndex, this.tag});
 
   final Image memeImage;
   final DocumentSnapshot memeDocument;
   final bool isSavedPost;
   final String pageTitle;
   final int memeIndex;
+  final String tag;
   final BaseBackend backend = new Backend();
 
   @override
@@ -56,7 +57,11 @@ class _ViewPostPageState extends State<ViewPostPage> {
   void addCommentCards() {
     widget.backend.getImageComments(widget.memeDocument.documentID).then((commentsSnapshot) {
       setState(() {
-        postComments = commentsSnapshot.documents;
+        for(int counter = 0; counter < commentsSnapshot.documents.length; counter++) {
+          if(commentsSnapshot.documents[counter].exists) {
+            postComments.add(commentsSnapshot.documents[counter]);
+          }
+        }
       });
     });
   }
@@ -70,8 +75,13 @@ class _ViewPostPageState extends State<ViewPostPage> {
   @override
   void initState() {
     super.initState();
-
-    heroTag = widget.memeIndex==null?widget.memeDocument.documentID:widget.memeDocument.documentID + widget.memeIndex.toString();
+    if(widget.tag != null) {
+      heroTag = widget.tag;
+    } else if (widget.memeIndex != null) {
+      heroTag = widget.memeDocument.documentID + widget.memeIndex.toString();
+    } else {
+      heroTag = widget.memeDocument.documentID;
+    }
 
     addCommentCards();
   }
@@ -83,7 +93,7 @@ class _ViewPostPageState extends State<ViewPostPage> {
       appBar: AppBar(
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Constants.INACTIVE_COLOR_DARK,),
+          icon: Icon(Icons.arrow_back_ios, color: Constants.INACTIVE_COLOR_DARK, size: 22.5,),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -104,7 +114,7 @@ class _ViewPostPageState extends State<ViewPostPage> {
                     future: widget.backend.getProfilePicture(widget.memeDocument.data['posterID']),
                     builder: (context, snapshot) {
                       Image displayedImage;
-                      if(snapshot.hasData) {
+                      if(snapshot.hasData && snapshot.data != null) {
                         displayedImage = Image.memory(
                           snapshot.data,
                           height: 37,

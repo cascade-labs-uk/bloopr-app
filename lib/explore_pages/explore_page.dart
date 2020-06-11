@@ -16,7 +16,7 @@ class ExplorePage extends StatefulWidget {
 }
 
 class _ExplorePageState extends State<ExplorePage> {
-  double originalSearchBarHeight = 80.0;
+  double originalSearchBarHeight = 40.0;
   double expandedSearchBarHeight;
   double searchBarHeight;
   bool searchOpen;
@@ -86,13 +86,15 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   Widget buildSearch() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8,0,8,0),
-      child: Container(
-        height: searchBarHeight,
-        child: ExploreSearchBar(
-          openSearch: openSearch,
-          closeSearch: closeSearch,
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8,8,8,8),
+        child: Container(
+          height: searchBarHeight,
+          child: ExploreSearchBar(
+            openSearch: openSearch,
+            closeSearch: closeSearch,
+          ),
         ),
       ),
     );
@@ -119,27 +121,28 @@ class _ExplorePageState extends State<ExplorePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
+          Spacer(),
           IconButton(
-            icon: Icon(Constants.EXPLORE_PAGE_ICON, size: 32.0),
-            color: Constants.HIGHLIGHT_COLOR,
+            icon: Icon(Constants.EXPLORE_PAGE_SELECTED_ICON, size: 27.5),
             onPressed: (){print("home pressed");},
           ),
+          Spacer(),
           IconButton(
-            icon: Icon(Constants.SWIPE_PAGE_ICON, size: 32.0),
-            color: Constants.INACTIVE_COLOR_DARK,
+            icon: Icon(Constants.SWIPE_PAGE_UNSELECTED_ICON, size: 32.0),
             onPressed: () {
               print("go to profile page button pressed");
               widget.toSwipePage();
             },
           ),
+          Spacer(),
           IconButton(
-            icon: Icon(Constants.PROFILE_PAGE_ICON, size: 32.0),
-            color: Constants.INACTIVE_COLOR_DARK,
+            icon: Icon(Constants.PROFILE_PAGE_UNSELECTED_ICON, size: 27.5),
             onPressed: () {
               print("go to profile page button pressed");
               widget.toMyProfilePage();
             }
-          )
+          ),
+          Spacer(),
         ],
       ),
     );

@@ -7,6 +7,7 @@ import 'package:blooprtest/config.dart';
 import 'package:blooprtest/backend.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image/image.dart' as imageLib;
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 class UploadMeme extends StatefulWidget {
 
@@ -62,16 +63,34 @@ class _UploadMemeState extends State<UploadMeme> {
     return File(path).writeAsBytes(imageLib.encodeJpg(waterMarkedImage));
   }
 
+  Future<File> resizeImage(File imageFile) async {
+    String targetPath = imageFile.path;
+    var resizedImageBytes = await FlutterImageCompress.compressWithFile(
+      imageFile.absolute.path,
+      minWidth: 400,
+      minHeight: 400,
+      quality: 90,
+    );
+    Future<File> resizedImageFuture = File(targetPath).writeAsBytes(resizedImageBytes);
+    return resizedImageFuture;
+  }
+
   void validateAndSubmit() {
     final form = formKey.currentState;
     if(form.validate()) {
       String caption = captionController.text;
       String tag = tagController.text;
       try {
-        waterMarkImage(croppedImage).then((file) {
-          widget.backend.uploadPost(file, caption,[tag]);
+//        waterMarkImage(croppedImage).then((file) {
+//          widget.backend.uploadPost(file, caption,[tag]);
+//          Navigator.pop(context);
+//        });
+        resizeImage(croppedImage).then((resizedImage) {
+          widget.backend.uploadPost(resizedImage, caption, [tag]);
           Navigator.pop(context);
         });
+//        widget.backend.uploadPost(croppedImage, caption, [tag]);
+//        Navigator.pop(context);
       } catch (e, s) {
         Fluttertoast.showToast(msg: "error with upload");
         print(s);
@@ -86,7 +105,8 @@ class _UploadMemeState extends State<UploadMeme> {
         backgroundColor: Constants.SECONDARY_COLOR,
         leading: IconButton(
           icon: Icon(
-            Icons.arrow_back,
+            Icons.arrow_back_ios,
+            size: 22.5,
             color: Constants.INACTIVE_COLOR_DARK,
           ),
           onPressed: () {
@@ -151,7 +171,7 @@ class _UploadMemeState extends State<UploadMeme> {
                   TextFormField(
                     controller: captionController,
                     decoration: InputDecoration(
-                        labelText: 'Pick a username',
+                        labelText: 'Caption',
                         fillColor: Colors.white
                     ),
                     validator: (value) => value.isEmpty ? 'please add a caption' : null,

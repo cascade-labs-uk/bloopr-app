@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:blooprtest/backend.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:blooprtest/config.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 class UploadProfilePicture extends StatefulWidget {
   UploadProfilePicture({this.fromCamera = true});
@@ -49,6 +50,18 @@ class _UploadProfilePictureState extends State<UploadProfilePicture> {
     });
   }
 
+  Future<File> resizeImage(File imageFile) async {
+    String targetPath = imageFile.path;
+    var resizedImageBytes = await FlutterImageCompress.compressWithFile(
+      imageFile.absolute.path,
+      minWidth: 200,
+      minHeight: 200,
+      quality: 70,
+    );
+    Future<File> resizedImageFuture = File(targetPath).writeAsBytes(resizedImageBytes);
+    return resizedImageFuture;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +70,8 @@ class _UploadProfilePictureState extends State<UploadProfilePicture> {
         backgroundColor: Constants.BACKGROUND_COLOR,
         leading: IconButton(
           icon: Icon(
-            Icons.arrow_back,
+            Icons.arrow_back_ios,
+            size: 22.5,
             color: Constants.INACTIVE_COLOR_DARK,
           ),
           onPressed: () {
@@ -141,8 +155,10 @@ class _UploadProfilePictureState extends State<UploadProfilePicture> {
                 color: Constants.SECONDARY_COLOR,
                 child: Text('Upload new profile picture'),
                 onPressed: () {
-                  widget.backend.uploadProfilePicture(croppedImage);
-                  Navigator.pop(context);
+                  resizeImage(croppedImage).then((resizedImage) {
+                    widget.backend.uploadProfilePicture(resizedImage);
+                    Navigator.pop(context);
+                  });
                 },
               )
             ],

@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flappy_search_bar/flappy_search_bar.dart';
+import 'package:flappy_search_bar/flappy_search_bar.dart' as fsb;
 import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/material.dart';
 import 'package:blooprtest/config.dart';
@@ -12,7 +12,7 @@ class ExploreSearchBar extends StatefulWidget {
   final VoidCallback openSearch;
   final VoidCallback closeSearch;
 
-  BaseBackend backend = new Backend();
+  final BaseBackend backend = new Backend();
 
   @override
   _ExploreSearchBarState createState() => _ExploreSearchBarState();
@@ -33,8 +33,20 @@ class _ExploreSearchBarState extends State<ExploreSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    return SearchBar<SearchResult>(
-      debounceDuration: Duration(milliseconds: 250),
+    return fsb.SearchBar<SearchResult>(
+      debounceDuration: Duration(milliseconds: 150),
+      icon: Icon(Icons.search, size: 22.5,),
+      cancellationWidget: Text(
+          "Cancel",
+          style: Constants.TEXT_STYLE_CAPTION_GREY
+      ),
+      hintText: "Search",
+      minimumChars: 0,
+      searchBarPadding: EdgeInsets.symmetric(horizontal: 10),
+      emptyWidget: Text(
+        "No Result Found",
+        style: Constants.TEXT_STYLE_HEADER_DARK,
+      ),
       onSearch: search,
       onCancelled: widget.closeSearch,
       onItemFound: (SearchResult searchResult, int index) {

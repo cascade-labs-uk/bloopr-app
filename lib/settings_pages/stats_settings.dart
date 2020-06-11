@@ -41,7 +41,10 @@ class _StatsPageState extends State<StatsPage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(
+            Icons.arrow_back_ios,
+            size: 22.5,
+          ),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -62,6 +65,11 @@ class _StatsPageState extends State<StatsPage> {
               SettingsTile(
                 title: 'Left Swipes',
                 subtitle: rightSwipes==null?'loading':'${leftSwipes.toString()}',
+                onTap: () {},
+              ),
+              SettingsTile(
+                title: 'Gloves Donated',
+                subtitle: rightSwipes==null?'loading':'${((rightSwipes/1000).floor()).toString()}',
                 onTap: () {},
               ),
             ],
