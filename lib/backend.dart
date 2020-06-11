@@ -937,7 +937,15 @@ class Backend implements BaseBackend {
       print("[FUNCTION ARGS][Backend.reportMeme] postID: $postID");
     }
 
-    // TODO: implement report feature
+    getOwnFirestoreUserID().then((firestoreUserID) {
+      _firestore.collection('reportedPosts').add({
+        "postID" : postID,
+        "reportingUserFirestoreID" : firestoreUserID,
+        "dateReported": FieldValue.serverTimestamp(),
+        "SSEReported":DateTime.now().toUtc().millisecondsSinceEpoch,
+        "resolved": false
+      });
+    });
   }
 
   void updateUserToken(String token) {
