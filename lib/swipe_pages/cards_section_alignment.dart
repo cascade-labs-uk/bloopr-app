@@ -83,7 +83,7 @@ class _CardsSectionState extends State<CardsSectionAlignment>
     backend.getRecommendedPosts(excluded: postIDs).then((postFutures) {
       for (int counter = 0; counter < postFutures.length; counter++) {
         postFutures[counter].then((postDocument) {
-          if(postDocument!=null) {
+          if(postDocument.data!=null) {
             String memeURL = postDocument.data['imageURL'];
             String memeCaption = postDocument.data['caption'];
             String memePostID = postDocument.documentID;
