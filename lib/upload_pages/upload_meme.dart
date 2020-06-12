@@ -171,7 +171,7 @@ class _UploadMemeState extends State<UploadMeme> {
                   TextFormField(
                     controller: captionController,
                     decoration: InputDecoration(
-                        labelText: 'Pick a username',
+                        labelText: 'Caption',
                         fillColor: Colors.white
                     ),
                     validator: (value) => value.isEmpty ? 'please add a caption' : null,
