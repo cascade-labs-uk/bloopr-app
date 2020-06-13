@@ -4,6 +4,7 @@ import 'package:blooprtest/backend.dart';
 import 'comment_card.dart';
 import 'package:blooprtest/config.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:blooprtest/comments_page.dart';
 
 class ViewPostPage extends StatefulWidget {
   ViewPostPage({this.memeImage, this.memeDocument, this.isSavedPost = false, this.pageTitle, this.memeIndex, this.tag});
@@ -29,41 +30,10 @@ class _ViewPostPageState extends State<ViewPostPage> {
   List<DocumentSnapshot> postComments = [];
   String userCommentText;
 
-  bool validateAndSave() {
-    final form = formKey.currentState;
-    if(form.validate()) {
-      form.save();
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  void validateAndSubmit() async {
-    if(validateAndSave()) {
-      try {
-        widget.backend.postUserComment(widget.memeDocument.documentID, userCommentText);
-        formKey.currentState.reset();
-        Future.delayed(Duration(milliseconds: 800), (){
-          postComments = [];
-          addCommentCards();
-        });
-      } catch (e) {
-        print('Error: $e');
-      }
-    }
-  }
-
-  void addCommentCards() {
-    widget.backend.getImageComments(widget.memeDocument.documentID).then((commentsSnapshot) {
-      setState(() {
-        for(int counter = 0; counter < commentsSnapshot.documents.length; counter++) {
-          if(commentsSnapshot.documents[counter].exists) {
-            postComments.add(commentsSnapshot.documents[counter]);
-          }
-        }
-      });
-    });
+  Future openComments(context) async {
+    Navigator.push(context, MaterialPageRoute(
+        builder: (context) => CommentsPage(memeDocument: widget.memeDocument,))
+    );
   }
 
   void unsavePost() {
@@ -82,8 +52,6 @@ class _ViewPostPageState extends State<ViewPostPage> {
     } else {
       heroTag = widget.memeDocument.documentID;
     }
-
-    addCommentCards();
   }
 
   @override
@@ -200,69 +168,24 @@ class _ViewPostPageState extends State<ViewPostPage> {
               widget.memeDocument.data["caption"],
               style: Constants.TEXT_STYLE_CAPTION_DARK,
             ),
-            buildComments()
+            RaisedButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                  side: BorderSide(
+                    color: Constants.DARK_TEXT,
+                    width: 0.5,
+                  )
+              ),
+              elevation: 0,
+              color: Constants.BACKGROUND_COLOR,
+              child: Text('Go to comments'),
+              onPressed: () {
+                openComments(context);
+              },
+            )
           ],
         ),
       )
-    );
-  }
-
-  Widget buildComments() {
-    return Expanded(
-      child: Column(
-        children: <Widget>[
-          Expanded(
-            child: ListView.builder(
-              scrollDirection: Axis.vertical,
-              itemCount: postComments.length,
-              itemBuilder: (context, index) {
-                return CommentCard(
-                  commentDocument: postComments[index],
-                  parentPostID: widget.memeDocument.documentID,
-                );
-              },
-            ),
-          ),
-          Form(
-            key: formKey,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8.0,8.0,4.0,8.0),
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                          hintText: 'Type something...',
-                          hintStyle: Constants.TEXT_STYLE_HINT_DARK,
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(80),
-                              borderSide: BorderSide(
-                                color: Constants.SECONDARY_COLOR,
-                              )
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(80),
-                              borderSide: BorderSide(
-                                color: Constants.HIGHLIGHT_COLOR,
-
-                              )
-                          )
-                      ),
-                      validator: (value) => value.isEmpty ? 'Write your comment fool' : null,
-                      obscureText: false,
-                      onSaved: (value) => userCommentText = value,
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.send, color: Constants.HIGHLIGHT_COLOR),
-                    onPressed: validateAndSubmit,
-                  )
-                ],
-              ),
-            ),
-          )
-        ],
-      ),
     );
   }
 }
