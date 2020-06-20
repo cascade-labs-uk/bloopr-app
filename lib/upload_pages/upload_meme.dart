@@ -174,7 +174,15 @@ class _UploadMemeState extends State<UploadMeme> {
                         labelText: 'Caption',
                         fillColor: Colors.white
                     ),
-                    validator: (value) => value.isEmpty ? 'please add a caption' : null,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'please add a caption';
+                      } else if (value.length > 40) {
+                        return 'you are over the 40 character limit';
+                      } else {
+                        return null;
+                      }
+                    },
                   ),
                   TextFormField(
                     controller: tagController,
