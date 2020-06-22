@@ -16,7 +16,7 @@ class ExplorePage extends StatefulWidget {
 }
 
 class _ExplorePageState extends State<ExplorePage> {
-  double originalSearchBarHeight = 40.0;
+  double originalSearchBarHeight = 80.0;
   double expandedSearchBarHeight;
   double searchBarHeight;
   bool searchOpen;

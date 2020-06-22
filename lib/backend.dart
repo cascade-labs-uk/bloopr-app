@@ -541,7 +541,7 @@ class Backend implements BaseBackend {
     }
 
     String userID = await _auth.currentUser();
-    Future<QuerySnapshot> query = _firestore.collection('posts').where("posterID", isEqualTo: userID).getDocuments();
+    Future<QuerySnapshot> query = _firestore.collection('posts').where("posterID", isEqualTo: userID).orderBy("secondsSinceEpoch", descending: true).getDocuments();
     return query;
   }
 
