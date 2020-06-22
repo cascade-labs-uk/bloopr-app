@@ -321,6 +321,7 @@ class _ProfilePageHeaderState extends State<ProfilePageHeader> {
   }
 
   FutureBuilder ProfilePicture(String userID) {
+    print("userID: $userID");
     return FutureBuilder(
       future: widget.backend.getProfilePicture(userID),
       builder: (context, snapshot) {

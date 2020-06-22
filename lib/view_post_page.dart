@@ -5,6 +5,8 @@ import 'package:blooprtest/backend.dart';
 import 'comment_card.dart';
 import 'package:blooprtest/config.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:blooprtest/comments_page.dart';
+import 'package:blooprtest/profile_pages/user_profile_page.dart';
 
 class ViewPostPage extends StatefulWidget {
   ViewPostPage({this.memeImage, this.memeDocument, this.isSavedPost = false, this.pageTitle, this.memeIndex, this.tag});
@@ -25,46 +27,35 @@ class _ViewPostPageState extends State<ViewPostPage> {
   final formKey = new GlobalKey<FormState>();
   bool unsaved = false;
   bool reported = false;
+  DocumentSnapshot userDocument;
   String heroTag;
 
   List<DocumentSnapshot> postComments = [];
   String userCommentText;
 
-  bool validateAndSave() {
-    final form = formKey.currentState;
-    if(form.validate()) {
-      form.save();
-      return true;
-    } else {
-      return false;
-    }
+  Future openComments(context) async {
+    Navigator.push(context, MaterialPageRoute(
+        builder: (context) => CommentsPage(memeDocument: widget.memeDocument,))
+    );
   }
 
-  void validateAndSubmit() async {
-    if(validateAndSave()) {
-      try {
-        widget.backend.postUserComment(widget.memeDocument.documentID, userCommentText);
-        formKey.currentState.reset();
-        Future.delayed(Duration(milliseconds: 800), (){
-          postComments = [];
-          addCommentCards();
-        });
-      } catch (e) {
-        print('Error: $e');
-      }
-    }
-  }
-
-  void addCommentCards() {
-    widget.backend.getImageComments(widget.memeDocument.documentID).then((commentsSnapshot) {
-      setState(() {
-        for(int counter = 0; counter < commentsSnapshot.documents.length; counter++) {
-          if(commentsSnapshot.documents[counter].exists) {
-            postComments.add(commentsSnapshot.documents[counter]);
-          }
-        }
+  Future openUserProfile(context) async {
+    if(userDocument == null) {
+      widget.backend.getUser(widget.memeDocument.data['posterID']).then((document) => {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfilePage(
+          displayedUserFirestoreID: document.documentID,
+          displayedUserID: document.data['userID'],
+          userDocument: document,
+        )))
       });
-    });
+    } else {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfilePage(
+        displayedUserFirestoreID: userDocument.documentID,
+        displayedUserID: userDocument.data['userID'],
+        userDocument: userDocument,
+      )));
+    }
+
   }
 
   void unsavePost() {
@@ -84,7 +75,9 @@ class _ViewPostPageState extends State<ViewPostPage> {
       heroTag = widget.memeDocument.documentID;
     }
 
-    addCommentCards();
+    widget.backend.getUser(widget.memeDocument.data['posterID']).then((document) {
+      userDocument = document;
+    });
   }
 
   @override
@@ -108,53 +101,41 @@ class _ViewPostPageState extends State<ViewPostPage> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.fromLTRB(14,2.5,14,2.5),
-              child: Row( // TODO: add an onTap listener that opens the poster's profile page
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  FutureBuilder(
-                    future: widget.backend.getProfilePicture(widget.memeDocument.data['posterID']),
-                    builder: (context, snapshot) {
-                      Image displayedImage;
-                      if(snapshot.hasData && snapshot.data != null) {
-                        displayedImage = Image.memory(
-                          snapshot.data,
-                          height: 37,
-                          width: 37,
+              child: GestureDetector(
+                onTap: () {
+
+                },
+                child: Row( // TODO: add an onTap listener that opens the poster's profile page
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    FutureBuilder(
+                      future: widget.backend.getProfilePicture(widget.memeDocument.data['posterID']),
+                      builder: (context, snapshot) {
+                        Image displayedImage;
+                        if(snapshot.hasData && snapshot.data != null) {
+                          displayedImage = Image.memory(
+                            snapshot.data,
+                            height: 37,
+                            width: 37,
+                          );
+                        } else {
+                          displayedImage = Image.asset(
+                            'assets/profile_image_placeholder.png',
+                            height: 37,
+                            width: 37,
+                          );
+                        }
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(18.5),
+                          child: displayedImage,
                         );
-                      } else {
-                        displayedImage = Image.asset(
-                          'assets/profile_image_placeholder.png',
-                          height: 30,
-                          width: 30,
-                        );
-                      }
-                      return ClipRRect(
-                        borderRadius: BorderRadius.circular(18.5),
-                        child: displayedImage,
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(14.0,0,14.0,0),
-                    child: Text(
-                      widget.memeDocument.data['poster name'],
-                      style: Constants.TEXT_STYLE_DARK,
+                      },
                     ),
-                  ),
-                  Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(14.0, 0.0, 14.0, 0.0),
-                    child: Visibility(
-                      visible: widget.isSavedPost,
-                      child: IconButton(
-                        icon: Icon(unsaved?Icons.bookmark_border:Icons.bookmark),
-                        color: Constants.HIGHLIGHT_COLOR,
-                        onPressed: () {
-                          unsavePost();
-                          setState(() {
-                            unsaved = true;
-                          });
-                        },
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(14.0,0,14.0,0),
+                      child: Text(
+                        widget.memeDocument.data['poster name'],
+                        style: Constants.TEXT_STYLE_DARK,
                       ),
                     ),
                   ),
@@ -258,6 +239,48 @@ class _ViewPostPageState extends State<ViewPostPage> {
 //                    )
                   )
                 ],
+//                    Spacer(),
+//                    Padding(
+//                      padding: const EdgeInsets.fromLTRB(14.0, 0.0, 14.0, 0.0),
+//                      child: Visibility(
+//                        visible: widget.isSavedPost,
+//                        child: IconButton(
+//                          icon: Icon(unsaved?Icons.bookmark_border:Icons.bookmark),
+//                          color: Constants.HIGHLIGHT_COLOR,
+//                          onPressed: () {
+//                            unsavePost();
+//                            setState(() {
+//                              unsaved = true;
+//                            });
+//                          },
+//                        ),
+//                      ),
+//                    ),
+//                    Visibility(
+//                      visible: widget.isSavedPost == false,
+//                      child: RaisedButton(
+//                        shape: RoundedRectangleBorder(
+//                            borderRadius: BorderRadius.circular(5.0),
+//                            side: BorderSide(
+//                             color: Constants.DARK_TEXT,
+//                              width: 0.5,
+//                            )
+//                        ),
+//                        elevation: 0,
+//                        color: Constants.BACKGROUND_COLOR,
+//                        child: reported?Text('Reported'):Text('Report'),
+//                        onPressed: () {
+//                          if(reported == false) {
+//                            setState(() {
+//                              reported = true;
+//                            });
+//                            widget.backend.reportMeme(widget.memeDocument.documentID);
+//                          }
+//                        },
+//                      )
+//                    )
+//                  ],
+//                ),
               ),
             ),
             Hero(
@@ -277,7 +300,21 @@ class _ViewPostPageState extends State<ViewPostPage> {
               widget.memeDocument.data["caption"],
               style: Constants.TEXT_STYLE_CAPTION_DARK,
             ),
-            buildComments()
+            RaisedButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                  side: BorderSide(
+                    color: Constants.DARK_TEXT,
+                    width: 0.5,
+                  )
+              ),
+              elevation: 0,
+              color: Constants.BACKGROUND_COLOR,
+              child: Text('Go to comments'),
+              onPressed: () {
+                openComments(context);
+              },
+            )
           ],
         ),
       )

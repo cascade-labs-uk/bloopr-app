@@ -56,12 +56,12 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void moveToRegister() {
+  void moveToForgotPassword() {
     formKey.currentState.reset();
     Navigator.push(context, MaterialPageRoute(builder: (context) => Center(child: CreateAccountPage(onSignedIn: widget.onSignedIn, auth: widget.auth))));
   }
 
-  void moveToForgotPassword() {
+  void moveToRegister() {
     formKey.currentState.reset();
     Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPasswordPage(auth: widget.auth,)));
   }

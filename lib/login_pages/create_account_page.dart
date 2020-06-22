@@ -52,8 +52,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                     color: Constants.BACKGROUND_COLOR,
                     child: Text('By clicking you agree to the above policy'),
                     onPressed: () {
-                      Navigator.pop(context);
                       validateAndSubmit();
+                      Navigator.pop(context);
                     },
                   )
                 ],
@@ -73,12 +73,15 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
     }
   }
 
-  void validateAndSubmit() async {
+  Future<void> validateAndSubmit() async {
     final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
     if(validateAndSave()) {
       try {
-        String userId = await widget.auth.createUserWithEmailAndPassword(_email, _password);
+        String userId = await widget.auth.createUserWithEmailAndPassword(_email, _password).catchError((e) => {
+          Fluttertoast.showToast(msg: "account creation failed")
+        });
         widget.onSignedIn();
+        Navigator.pop(context);
       } catch (e) {
         print('Error: $e');
       }

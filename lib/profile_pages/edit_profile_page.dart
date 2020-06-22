@@ -30,10 +30,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   void validateAndSubmit() {
-    widget.backend.updateProfile(
-      nicknameTextController.text,
-      bioTextController.text
-    );
+    if(validateAndSave()) {
+      widget.backend.updateProfile(
+          nicknameTextController.text,
+          bioTextController.text
+      );
+      Navigator.pop(context);
+    }
   }
 
   Future openUploadProfilePicture(context, bool fromCamera) async {
@@ -87,7 +90,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             onPressed: () {
               validateAndSubmit();
-              Navigator.pop(context);
             },
           ),
         ],
@@ -239,22 +241,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           'Bio',
                         ),
                       ),
-                      Expanded(
-                        flex: 4,
-                        child: TextFormField(
-                          keyboardType: TextInputType.multiline,
-                          maxLines: null,
-                          controller: bioTextController,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            errorBorder: InputBorder.none,
-                            disabledBorder: InputBorder.none,
-                            hintText: 'Bio',
-                            hintStyle: Constants.TEXT_STYLE_HINT_DARK,
-                            fillColor: Colors.white,
-                          ),
+                    ),
+                    Expanded(
+                      flex: 4,
+                      child: TextFormField(
+                        keyboardType: TextInputType.multiline,
+                        maxLines: null,
+                        controller: bioTextController,
+                        validator: (value) => value.length > 80 ? 'you are over the 80 character limit' : null,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          hintText: 'Bio',
+                          hintStyle: Constants.TEXT_STYLE_HINT_DARK,
+                          fillColor: Colors.white,
                         ),
                       ),
                     ],
