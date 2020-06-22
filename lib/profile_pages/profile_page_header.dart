@@ -26,6 +26,8 @@ class ProfilePageHeader extends StatefulWidget {
 
 class _ProfilePageHeaderState extends State<ProfilePageHeader> {
   bool following;
+  String username;
+  String bio;
 
   Future openUploadProfilePicture(context) async {
     Navigator.push(context, MaterialPageRoute(builder: (context) => UploadProfilePicture()));
@@ -38,7 +40,7 @@ class _ProfilePageHeaderState extends State<ProfilePageHeader> {
   }
 
   Future openEditProfile(context) async {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfilePage(firestoreID: widget.userID,)));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfilePage(firestoreID: widget.userID, reloadPageCallback: reloadPage,)));
   }
 
   Future openSettings(context) async {
@@ -49,11 +51,24 @@ class _ProfilePageHeaderState extends State<ProfilePageHeader> {
     )));
   }
 
+  void reloadPage() {
+    Future.delayed(Duration(milliseconds: 800), (){
+      widget.backend.getUser(widget.userDocument.documentID).then((userDocument) {
+        setState(() {
+          bio = userDocument.data['user bio'];
+          username = userDocument.data['nickname'];
+        });
+      });
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     setState(() {
       following = false;
+      bio = widget.userDocument.data['user bio'];
+      username = widget.userDocument.data['nickname'];
     });
     widget.backend.getFollowingFromFirestoreID(widget.userDocument.documentID).then((followingSnapshot) {
       if(followingSnapshot.documents.length > 0) {
@@ -115,7 +130,7 @@ class _ProfilePageHeaderState extends State<ProfilePageHeader> {
           Padding(
             padding: const EdgeInsets.fromLTRB(0,12.0,0,12.0),
             child: Text(
-              widget.userDocument.data['nickname'],
+              username,
               style: Constants.TEXT_STYLE_HEADER_DARK,
             ),
           ),
@@ -228,7 +243,7 @@ class _ProfilePageHeaderState extends State<ProfilePageHeader> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20.0,8.0,20.0,0.0),
             child: Text(
-              widget.userDocument.data['user bio'],
+              bio,
               style: Constants.TEXT_STYLE_DARK,
               textAlign: TextAlign.center,
             ),

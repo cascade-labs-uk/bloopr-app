@@ -5,9 +5,10 @@ import 'package:blooprtest/upload_pages/upload_profile_picture.dart';
 import 'package:blooprtest/config.dart';
 
 class EditProfilePage extends StatefulWidget {
-  EditProfilePage({this.firestoreID});
+  EditProfilePage({this.firestoreID, this.reloadPageCallback});
 
-  final firestoreID;
+  final String firestoreID;
+  final VoidCallback reloadPageCallback;
   final BaseBackend backend = new Backend();
 
   @override
@@ -35,6 +36,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           nicknameTextController.text,
           bioTextController.text
       );
+      widget.reloadPageCallback();
       Navigator.pop(context);
     }
   }
