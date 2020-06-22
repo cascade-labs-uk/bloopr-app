@@ -97,6 +97,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       body: Container(
         color: Constants.BACKGROUND_COLOR,
         child: Form(
+          key: formKey,
           child: Column(
             children: <Widget>[
 
@@ -246,7 +247,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         keyboardType: TextInputType.multiline,
                         maxLines: null,
                         controller: bioTextController,
-                        validator: (value) => value.length > 80 ? 'you are over the 80 character limit' : null,
+                        validator: (value) => value.length > 100 ? 'you are over the 100 character limit' : null,
                         decoration: InputDecoration(
                           border: InputBorder.none,
                           focusedBorder: InputBorder.none,
