@@ -21,11 +21,11 @@ List<Size> cardsSize = List(3);
 class CardsSectionAlignment extends StatefulWidget {
   CardsSectionAlignment(BuildContext context) {
     cardsSize[0] = Size(MediaQuery.of(context).size.width * 0.90,
-        MediaQuery.of(context).size.height * 0.6);
+        MediaQuery.of(context).size.width + 82);
     cardsSize[1] = Size(MediaQuery.of(context).size.width * 0.85,
-        MediaQuery.of(context).size.height * 0.55);
+        MediaQuery.of(context).size.width + 60);
     cardsSize[2] = Size(MediaQuery.of(context).size.width * 0.8,
-        MediaQuery.of(context).size.height * 0.5);
+        MediaQuery.of(context).size.width + 40);
   }
 
   @override
@@ -83,7 +83,7 @@ class _CardsSectionState extends State<CardsSectionAlignment>
     backend.getRecommendedPosts(excluded: postIDs).then((postFutures) {
       for (int counter = 0; counter < postFutures.length; counter++) {
         postFutures[counter].then((postDocument) {
-          if(postDocument!=null) {
+          if(postDocument.data!=null) {
             String memeURL = postDocument.data['imageURL'];
             String memeCaption = postDocument.data['caption'];
             String memePostID = postDocument.documentID;

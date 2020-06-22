@@ -219,16 +219,18 @@ class _ProfileCardAlignmentState extends State<ProfileCardAlignment> {
       return Stack(
         overflow: Overflow.clip,
         children: <Widget>[
-          Align(
-            alignment: Alignment.topCenter,
-            child: AspectRatio(
-              aspectRatio: 0.9,
-              child: Material(
-                borderRadius: BorderRadius.circular(12.0),
-                child: widget.displayImage,
+          Column(
+            children: [
+              Align(
+                alignment: Alignment.topCenter,
+                child: AspectRatio(
+                  aspectRatio: 0.9,
+                  child: Material(
+                    borderRadius: BorderRadius.circular(12.0),
+                    child: widget.displayImage,
+                  ),
+                ),
               ),
-            ),
-          ),
 //          SizedBox.expand(
 //            child: Container(
 //              decoration: BoxDecoration(
@@ -238,15 +240,15 @@ class _ProfileCardAlignmentState extends State<ProfileCardAlignment> {
 //                      end: Alignment.bottomCenter)),
 //            ),
 //          ),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Container(
-                height: 80,
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-                child: Text('${widget.caption}',
-                        style: Constants.TEXT_STYLE_CAPTION_DARK
-                ),
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Container(
+                    height: 80,
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+                    child: Text('${widget.caption}',
+                            style: Constants.TEXT_STYLE_CAPTION_DARK
+                    ),
 //                child: Column(
 //                  mainAxisAlignment: MainAxisAlignment.end,
 //                  crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,8 +264,10 @@ class _ProfileCardAlignmentState extends State<ProfileCardAlignment> {
 //                        style: TextStyle(color: Colors.white)),
 //                  ],
 //                ),
-                color: Constants.BACKGROUND_COLOR,
-            ),
+                    color: Constants.BACKGROUND_COLOR,
+                ),
+              ),
+            ],
           )
         ],
       );

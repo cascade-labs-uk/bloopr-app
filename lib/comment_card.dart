@@ -4,11 +4,12 @@ import 'package:blooprtest/config.dart';
 import 'package:blooprtest/backend.dart';
 
 class CommentCard extends StatefulWidget {
-  CommentCard({this.parentPostID, this.commentDocument});
+  CommentCard({this.parentPostID, this.commentDocument, this.key});
 
   final DocumentSnapshot commentDocument;
   final String parentPostID;
   final BaseBackend backend = new Backend();
+  final Key key;
 
   @override
   _CommentCardState createState() => _CommentCardState();
@@ -81,6 +82,7 @@ class _CommentCardState extends State<CommentCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
+      key: widget.key,
       elevation: 0,
       color: Constants.BACKGROUND_COLOR,
       borderOnForeground: false,

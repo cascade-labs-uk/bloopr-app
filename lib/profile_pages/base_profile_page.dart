@@ -146,7 +146,6 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
     });
 
     widget.backend.getUserSaveInteractions(widget.displayedUserFirestoreID).then((querySnapshot) {
-      print(querySnapshot.documents[0].data);
       for (int counter = 0; counter < querySnapshot.documents.length; counter++) {
         widget.backend.getPost(querySnapshot.documents[counter].data['postID']).then((postDocument) {
           setState(() {

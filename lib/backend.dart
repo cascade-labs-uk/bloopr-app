@@ -178,6 +178,10 @@ class Backend implements BaseBackend {
       newPostList.add(newPostHitList[counter]["_source"]["firebaseID"]);
     }
 
+    if(debugLevel >= 2) {
+      print("[FUNCTION VARS][Backend.getRecommendedPostIDs] newPostList: ${newPostList.toString()}");
+    }
+
     String newPostsString;
 
     if(newPostList.length != 0) {
@@ -257,6 +261,25 @@ class Backend implements BaseBackend {
     }
   }
 
+  Future<http.Response> getNewPosts(List exclude, {numberOfNewPosts=10}) {
+    String excludedPostsString;
+
+    if(exclude.length != 0) {
+      excludedPostsString = '[';
+      for (int counter = 0; counter < exclude.length - 1; counter++) {
+        excludedPostsString = excludedPostsString + '"${exclude[counter]}",';
+      }
+      excludedPostsString =
+          excludedPostsString + '"${exclude[exclude.length - 1]}"]';
+    } else {
+      excludedPostsString = '[]';
+    }
+    var newPostsQueryURL = 'https://7ee3335fb14040269b50b807934bf5d0.europe-west2.gcp.elastic-cloud.com:9243/posts/_search';
+    var lowInteractionCeiling = 10;
+    var newPostsQueryBody = '{"size":${numberOfNewPosts.toString()} ,"query": {"bool": {"must" : [{"range" : {"timePosted" : {"gt" : 159085506}}}],"must_not": [{"ids": {"values": $excludedPostsString }}]}},"sort":{"timePosted":"desc"}}';
+    return http.post(newPostsQueryURL, body: newPostsQueryBody, headers: {'Authorization':'Basic ZWxhc3RpYzpGcWFweTJhSFRnOGo4QWlSa3Z1NDR4aTA=','Content-Type': 'application/json'});
+  }
+
   Future<http.Response> getNewPostsWithLowInteraction(List exclude) {
     String excludedPostsString;
 
@@ -296,14 +319,22 @@ class Backend implements BaseBackend {
       String firestoreID = await getOwnFirestoreUserID();
       var likedPostsUrl = 'https://7ee3335fb14040269b50b807934bf5d0.europe-west2.gcp.elastic-cloud.com:9243/interactions/_doc/$firestoreID/_source';
       var likedPostsResponse = await http.get(likedPostsUrl, headers: {'Authorization':'Basic ZWxhc3RpYzpGcWFweTJhSFRnOGo4QWlSa3Z1NDR4aTA='});
-      List viewedPosts = json.decode(likedPostsResponse.body)['viewedPosts'];
+      List tempViewedPosts = json.decode(likedPostsResponse.body)['viewedPosts'];
+      List<String> viewedPosts = [];
+      for(int counter = 0; counter < tempViewedPosts.length; counter++){
+        viewedPosts.add(tempViewedPosts[counter].toString());
+      }
 
-      if(excluded != null) {
-        documentIDs.addAll(excluded);
+      if(debugLevel >= 2) {
+        print("[FUNCTION VARS][Backend.getRecommendedPosts] viewedPosts: ${viewedPosts.toString()}");
+      }
+
+      if(excluded == null) {
+        excluded = [];
       }
 
       if(documentIDs.length < temp_target) {
-        http.Response popularPostResponse = await getPopularPostIDs(exclude: documentIDs + viewedPosts);
+        http.Response popularPostResponse = await getPopularPostIDs(exclude: documentIDs + viewedPosts + excluded);
         print(popularPostResponse.body);
         List popularPostBuckets = json.decode(popularPostResponse.body)['aggregations']['likedPosts']['buckets'];
         print("popular posts: " + popularPostBuckets.toString());
@@ -312,7 +343,7 @@ class Backend implements BaseBackend {
         }
       }
 
-      http.Response lowInteractionPostsResponse = await getNewPostsWithLowInteraction(documentIDs);
+      http.Response lowInteractionPostsResponse = await getNewPostsWithLowInteraction(documentIDs + viewedPosts + excluded);
       List lowInteractionPostList = json.decode(lowInteractionPostsResponse.body)['hits']['hits'];
 
       List<String> lowInteractionPostRandomSelection = [];
@@ -332,8 +363,19 @@ class Backend implements BaseBackend {
 
       documentIDs = randomlyInsert(documentIDs, lowInteractionPostRandomSelection);
 
+      if(documentIDs.length < temp_target){
+        var newPostsResponse = await getNewPosts(documentIDs + excluded + viewedPosts);
+        List newPostsHits = json.decode(newPostsResponse.body)['hits']['hits'];
+        for(int counter=0; counter < newPostsHits.length; counter++) {
+          documentIDs.add(newPostsHits[counter]['_source']['firebaseID']);
+        }
+      }
+
       List<Future<DocumentSnapshot>> postFutures = [];
-      print("documentIDs: " + documentIDs.toString());
+
+      if(debugLevel >= 2) {
+        print("[FUNCTION VARS][Backend.getRecommendedPosts] documentIDs: ${documentIDs.toString()}");
+      }
 
       for (int counter = 0; counter < documentIDs.length; counter++) {
         postFutures.add(_firestore.collection('posts').document(documentIDs[counter]).get());
@@ -499,7 +541,7 @@ class Backend implements BaseBackend {
     }
 
     String userID = await _auth.currentUser();
-    Future<QuerySnapshot> query = _firestore.collection('posts').where("posterID", isEqualTo: userID).getDocuments();
+    Future<QuerySnapshot> query = _firestore.collection('posts').where("posterID", isEqualTo: userID).orderBy("secondsSinceEpoch", descending: true).getDocuments();
     return query;
   }
 
@@ -895,7 +937,15 @@ class Backend implements BaseBackend {
       print("[FUNCTION ARGS][Backend.reportMeme] postID: $postID");
     }
 
-    // TODO: implement report feature
+    getOwnFirestoreUserID().then((firestoreUserID) {
+      _firestore.collection('reportedPosts').add({
+        "postID" : postID,
+        "reportingUserFirestoreID" : firestoreUserID,
+        "dateReported": FieldValue.serverTimestamp(),
+        "SSEReported":DateTime.now().toUtc().millisecondsSinceEpoch,
+        "resolved": false
+      });
+    });
   }
 
   void updateUserToken(String token) {
