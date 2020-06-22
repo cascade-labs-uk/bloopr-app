@@ -58,12 +58,12 @@ class _LoginPageState extends State<LoginPage> {
 
   void moveToRegister() {
     formKey.currentState.reset();
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPasswordPage(auth: widget.auth,)));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => Center(child: CreateAccountPage(onSignedIn: widget.onSignedIn, auth: widget.auth))));
   }
 
   void moveToForgotPassword() {
     formKey.currentState.reset();
-    Navigator.push(context, MaterialPageRoute(builder: (context) => Center(child: CreateAccountPage(onSignedIn: widget.onSignedIn, auth: widget.auth))));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPasswordPage(auth: widget.auth,)));
   }
 
   @override
@@ -127,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
               color: Constants.INACTIVE_COLOR_LIGHT,
             ),
           ),
-          validator: (value) => value.isEmpty ? 'email cannot be empty' : null,
+          validator: (value) => value.isEmpty ? 'Email cannot be empty' : null,
           onSaved: (value) => _email = value,
         ),
       ),
@@ -161,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
               color: Colors.white,
             ),
           ),
-          validator: (value) => value.isEmpty ? 'password cannot be empty' : null,
+          validator: (value) => value.isEmpty ? 'Password cannot be empty' : null,
           obscureText: true,
           onSaved: (value) => _password = value,
         ),

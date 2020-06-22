@@ -51,6 +51,8 @@ class Constants {
   static TextStyle TEXT_STYLE_HINT_DARK = GoogleFonts.getFont('Open Sans', color: GREY_TEXT, fontSize: 12.0);
   static TextStyle TEXT_STYLE_HINT_LIGHT = GoogleFonts.getFont('Open Sans', color: LIGHT_TEXT, fontSize: 12.0);
   static TextStyle TEXT_STYLE_LARGE_NUMBERS_DARK = GoogleFonts.getFont('Open Sans', color: DARK_TEXT, fontSize: 18.0, fontWeight:  FontWeight.w500);
+  static TextStyle ACTION_SHEET_TITLE = GoogleFonts.getFont('Roboto', color: DARK_TEXT, fontSize: 15.0, fontWeight:  FontWeight.w900);
+  static TextStyle ACTION_SHEET_TEXT = GoogleFonts.getFont('Roboto', color: DARK_TEXT, fontSize: 17.0, fontWeight:  FontWeight.w500);
 }
 
 enum language {

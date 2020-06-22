@@ -110,7 +110,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               color: Colors.white,
             ),
           ),
-          validator: (value) => value.isEmpty ? 'email cannot be empty' : null,
+          validator: (value) => value.isEmpty ? 'Email cannot be empty' : null,
           onSaved: (value) => _email = value,
         ),
       ),
@@ -159,7 +159,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           Navigator.pop(context);
         },
         child: Text(
-          'back to login',
+          'Back to login',
           style: Constants.TEXT_STYLE_HINT_DARK,
         ),
       )

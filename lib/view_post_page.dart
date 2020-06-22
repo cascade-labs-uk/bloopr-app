@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:blooprtest/backend.dart';
@@ -89,7 +90,7 @@ class _ViewPostPageState extends State<ViewPostPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset : false,
       appBar: AppBar(
         elevation: 0.75,
         leading: IconButton(
@@ -162,7 +163,73 @@ class _ViewPostPageState extends State<ViewPostPage> {
                     child: IconButton(
                       icon: Icon(Icons.more_horiz, color: Constants.DARK_TEXT, size: 22.5,),
                       onPressed: () {
-
+                        showCupertinoModalPopup(
+                          context: context,
+                          builder: (BuildContext context) =>
+                              CupertinoActionSheet(
+                              actions: <Widget>[
+                                Container(
+                                  child: CupertinoActionSheetAction(
+                                    child: Text(
+                                      "Report",
+                                    ),
+                                    onPressed: () {
+                                      widget.backend.reportMeme(widget.memeDocument.documentID);
+                                      Navigator.pop(context);
+                                    },
+                                    isDestructiveAction: true,
+                                  ),
+                                ),
+                                CupertinoActionSheetAction(
+                                  child: Text(
+                                    "Save Post",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    // Action to save post
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                CupertinoActionSheetAction(
+                                  child: Text(
+                                    "Share Post",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    // Action to share post
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                CupertinoActionSheetAction(
+                                  child: Text(
+                                    "Unfollow",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    // Action to unfollow user
+                                    Navigator.pop(context);
+                                  },
+                                )
+                            ],
+                            cancelButton: CupertinoActionSheetAction(
+                              child: Text(
+                                "Cancel",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                ),
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context, 'Cancel');
+                              },
+                            ),
+                          ),
+                        );
                       },
                     ),
 
@@ -218,60 +285,62 @@ class _ViewPostPageState extends State<ViewPostPage> {
   }
 
   Widget buildComments() {
-    return Expanded(
-      child: Column(
-        children: <Widget>[
-          Expanded(
-            child: ListView.builder(
-              scrollDirection: Axis.vertical,
-              itemCount: postComments.length,
-              itemBuilder: (context, index) {
-                return CommentCard(
-                  commentDocument: postComments[index],
-                  parentPostID: widget.memeDocument.documentID,
-                );
-              },
-            ),
-          ),
-          Form(
-            key: formKey,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8.0,8.0,4.0,8.0),
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                          hintText: 'Type something...',
-                          hintStyle: Constants.TEXT_STYLE_HINT_DARK,
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(80),
-                              borderSide: BorderSide(
-                                color: Constants.SECONDARY_COLOR,
-                              )
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(80),
-                              borderSide: BorderSide(
-                                color: Constants.HIGHLIGHT_COLOR,
-
-                              )
-                          )
-                      ),
-                      validator: (value) => value.isEmpty ? 'Type Something...' : null,
-                      obscureText: false,
-                      onSaved: (value) => userCommentText = value,
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.send, color: Constants.HIGHLIGHT_COLOR),
-                    onPressed: validateAndSubmit,
-                  )
-                ],
+    return Container(
+      child: Expanded(
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: ListView.builder(
+                scrollDirection: Axis.vertical,
+                itemCount: postComments.length,
+                itemBuilder: (context, index) {
+                  return CommentCard(
+                    commentDocument: postComments[index],
+                    parentPostID: widget.memeDocument.documentID,
+                  );
+                },
               ),
             ),
-          )
-        ],
+            Form(
+              key: formKey,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8.0,8.0,4.0,8.0),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                            hintText: 'Type something...',
+                            hintStyle: Constants.TEXT_STYLE_HINT_DARK,
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(80),
+                                borderSide: BorderSide(
+                                  color: Constants.SECONDARY_COLOR,
+                                )
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(80),
+                                borderSide: BorderSide(
+                                  color: Constants.HIGHLIGHT_COLOR,
+
+                                )
+                            )
+                        ),
+                        validator: (value) => value.isEmpty ? 'Type Something...' : null,
+                        obscureText: false,
+                        onSaved: (value) => userCommentText = value,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.send, color: Constants.HIGHLIGHT_COLOR),
+                      onPressed: validateAndSubmit,
+                    )
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

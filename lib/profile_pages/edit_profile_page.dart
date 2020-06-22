@@ -94,47 +94,48 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ),
       body: Container(
         color: Constants.BACKGROUND_COLOR,
-        child: Form(
-          child: Column(
-            children: <Widget>[
+        child: SingleChildScrollView(
+          child: Form(
+            child: Column(
+              children: <Widget>[
 
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 32.5, 0, 0),
-                child: GestureDetector(
-                  child: Container(
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Constants.OUTLINE_COLOR,
-                          width: 0.5,
-                        ),
-                        borderRadius: BorderRadius.circular(100)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 32.5, 0, 0),
+                  child: GestureDetector(
+                    child: Container(
+                      decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Constants.OUTLINE_COLOR,
+                            width: 0.5,
+                          ),
+                          borderRadius: BorderRadius.circular(100)
+                      ),
+                      child: ClipRRect(
+                        child: ProfilePicture(widget.firestoreID),
+                        borderRadius: BorderRadius.circular(75.0),
+                      ),
                     ),
-                    child: ClipRRect(
-                      child: ProfilePicture(widget.firestoreID),
-                      borderRadius: BorderRadius.circular(75.0),
-                    ),
+                    onTap: () {
+                      openUploadProfilePicture(context, false);
+                    },
                   ),
-                  onTap: () {
-                    openUploadProfilePicture(context, false);
-                  },
                 ),
-              ),
 
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 17.5),
-                child: FlatButton(
-                  child: Text(
-                    "Change Photo",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Constants.HIGHLIGHT_COLOR,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 17.5),
+                  child: FlatButton(
+                    child: Text(
+                      "Change Photo",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Constants.HIGHLIGHT_COLOR,
+                      ),
                     ),
+                    onPressed: () {
+                      openUploadProfilePicture(context, false);
+                    },
                   ),
-                  onPressed: () {
-                    openUploadProfilePicture(context, false);
-                  },
                 ),
-              ),
 //              Padding(
 //                padding: const EdgeInsets.fromLTRB(0,0,0,16.0),
 //                child: Row(
@@ -173,101 +174,102 @@ class _EditProfilePageState extends State<EditProfilePage> {
 //                  ],
 //                ),
 //              ),
-              Container(
-                color: Constants.OUTLINE_COLOR,
-                width: double.infinity,
-                height: 0.5,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(2.5),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12.5, 0, 8.0, 0),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        'Username',
-                      ),
-                      flex: 1,
-                    ),
-                    Expanded(
-                      flex: 4,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Container(
-                            decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.grey[500],
-                                    width: 0.0,
-                                  ),
-                                ),
-                            ),
-                            width: 280,
-                            child: TextFormField(
-                              controller: nicknameTextController,
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                focusedBorder: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                                errorBorder: InputBorder.none,
-                                disabledBorder: InputBorder.none,
-                                hintText: 'Username',
-                                hintStyle: Constants.TEXT_STYLE_HINT_DARK,
-                                fillColor: Colors.white,
-                              ),
-                              validator: (value) => value.isEmpty ? 'nickname cannot be empty' : null,
-                              //onSaved: (value) => _email = value,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                Container(
+                  color: Constants.OUTLINE_COLOR,
+                  width: double.infinity,
+                  height: 0.5,
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12.5,0,8.0,0),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        'Bio',
+                Padding(
+                  padding: const EdgeInsets.all(2.5),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12.5, 0, 8.0, 0),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          'Username',
+                        ),
+                        flex: 1,
                       ),
-                    ),
-                    Expanded(
-                      flex: 4,
-                      child: TextFormField(
-                        keyboardType: TextInputType.multiline,
-                        maxLines: null,
-                        controller: bioTextController,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
-                          hintText: 'Bio',
-                          hintStyle: Constants.TEXT_STYLE_HINT_DARK,
-                          fillColor: Colors.white,
+                      Expanded(
+                        flex: 4,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Container(
+                              decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: Colors.grey[500],
+                                      width: 0.0,
+                                    ),
+                                  ),
+                              ),
+                              width: 280,
+                              child: TextFormField(
+                                controller: nicknameTextController,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  errorBorder: InputBorder.none,
+                                  disabledBorder: InputBorder.none,
+                                  hintText: 'Username',
+                                  hintStyle: Constants.TEXT_STYLE_HINT_DARK,
+                                  fillColor: Colors.white,
+                                ),
+                                validator: (value) => value.isEmpty ? 'nickname cannot be empty' : null,
+                                //onSaved: (value) => _email = value,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(2.5),
-              ),
-              Container(
-                color: Constants.OUTLINE_COLOR,
-                width: double.infinity,
-                height: 0.5,
-              ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12.5,0,8.0,0),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          'Bio',
+                        ),
+                      ),
+                      Expanded(
+                        flex: 4,
+                        child: TextFormField(
+                          keyboardType: TextInputType.multiline,
+                          maxLines: null,
+                          controller: bioTextController,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            hintText: 'Bio',
+                            hintStyle: Constants.TEXT_STYLE_HINT_DARK,
+                            fillColor: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(2.5),
+                ),
+                Container(
+                  color: Constants.OUTLINE_COLOR,
+                  width: double.infinity,
+                  height: 0.5,
+                ),
+              ],
+            ),
           ),
         ),
       ),
