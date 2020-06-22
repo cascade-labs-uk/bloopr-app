@@ -118,13 +118,14 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
   List<DocumentSnapshot> savedPostDocuments = [];
   int maxImageSize = 7 * 1024 * 1024;
 
-  Future openViewMemePage(context, Image memeImage, DocumentSnapshot memeDocument, String heroTag,{isSavedPost = false}) async {
+  Future openViewMemePage(context, Image memeImage, DocumentSnapshot memeDocument, String heroTag,{isSavedPost = false, isOwnPost = false}) async {
     Navigator.push(context, MaterialPageRoute(builder: (context) => ViewPostPage(
       memeDocument: memeDocument,
       memeImage: memeImage,
       isSavedPost: isSavedPost,
       pageTitle: isSavedPost?"Saved":"Post",
       tag: heroTag,
+      isOwnPost: isOwnPost,
     )));
   }
 
@@ -297,7 +298,8 @@ class _BaseProfilePageState extends State<BaseProfilePage> {
                 Image.network(postDocuments[counter].data['imageURL']),
                 postDocuments[counter],
                 heroTag,
-                isSavedPost: false
+                isSavedPost: false,
+                isOwnPost: widget.isOwnProfile
               );
             },
             child: Padding(
