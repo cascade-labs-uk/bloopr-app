@@ -59,6 +59,7 @@ abstract class BaseBackend {
   void sendMeme(String userFirestoreID, String postID);
   void reportMeme(String postID);
   void updateUserToken(String token);
+  void removePost(String postID);
 }
 
 class Backend implements BaseBackend {
@@ -959,6 +960,10 @@ class Backend implements BaseBackend {
         'fcmToken':token
       });
     });
+  }
+
+  void removePost(String postFirestoreID) {
+    _firestore.collection('posts').document(postFirestoreID).delete();
   }
 
   List<String> randomlyInsert(List<String> inPlaceList, List<String> insertableList) {

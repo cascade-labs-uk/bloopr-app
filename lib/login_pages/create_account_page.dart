@@ -149,7 +149,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                 color: Constants.INACTIVE_COLOR_LIGHT,
               )
           ),
-          validator: (value) => value.isEmpty ? 'email cannot be empty' : null,
+          validator: (value) => value.isEmpty ? 'Email cannot be empty' : null,
           onSaved: (value) => _email = value,
         ),
       ),
@@ -183,7 +183,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                 color: Constants.INACTIVE_COLOR_LIGHT,
               )
           ),
-          validator: (value) => value.isEmpty ? 'password cannot be empty' : null,
+          validator: (value) => value.isEmpty ? 'Password cannot be empty' : null,
           obscureText: true,
           onSaved: (value) => _password = value,
         ),
@@ -218,7 +218,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                 color: Constants.INACTIVE_COLOR_LIGHT,
               )
           ),
-          validator: (value) => value.isEmpty ? 'please retype your password' : null,
+          validator: (value) => value.isEmpty ? 'Please retype your password' : null,
           obscureText: true,
           onSaved: (value) => _confirmPassword = value,
 
@@ -253,7 +253,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                 constraints: BoxConstraints(maxWidth: 220.0, minHeight: 50.0),
                 alignment: Alignment.center,
                 child: Text(
-                  "Create account",
+                  "Create Account",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: Colors.white
