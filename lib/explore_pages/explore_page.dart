@@ -65,7 +65,10 @@ class _ExplorePageState extends State<ExplorePage> {
                 width: double.infinity,
                 height: 0.5,
               ),
-              navigationBar()
+              Container(
+                  child: navigationBar(),
+
+              )
             ],
           ),
         ),

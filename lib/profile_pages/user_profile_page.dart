@@ -19,7 +19,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppBar(git
         elevation: 0,
         backgroundColor: Constants.BACKGROUND_COLOR,
         leading: IconButton(

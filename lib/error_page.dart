@@ -11,7 +11,7 @@ class ErrorPage extends StatelessWidget {
       child: Center(
         child: Column(
           children: <Widget>[
-            Text("Uh oh - an error occured"),
+            Text("Uh oh - an error occurred"),
             RaisedButton(
               child: Text("back to home"),
               onPressed: toHomePage,
