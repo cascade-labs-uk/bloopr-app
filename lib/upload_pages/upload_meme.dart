@@ -25,7 +25,7 @@ class _UploadMemeState extends State<UploadMeme> {
   final formKey = new GlobalKey<FormState>();
   TextEditingController captionController = new TextEditingController();
   TextEditingController tagController = new TextEditingController();
-  var c = 0;
+  var loadingPageCounter = 0;
 
   Future cropImage() async {
     File newCroppedImage = await ImageCropper.cropImage(
@@ -131,7 +131,7 @@ class _UploadMemeState extends State<UploadMeme> {
 
   Widget buildBody() {
     if(selectedImage == null) {
-      incC();
+      incLoadingPageCounter();
       return Center(
         child: Column(
           children: <Widget>[
@@ -213,19 +213,11 @@ class _UploadMemeState extends State<UploadMeme> {
     });
   }
 
-  Future getImageFromCamera() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.camera);
-
+  void incLoadingPageCounter() {
     setState(() {
-      selectedImage = image;
+      loadingPageCounter += 1;
     });
-  }
-
-  void incC() {
-    setState(() {
-      c += 1;
-    });
-    if (c == 2) {
+    if (loadingPageCounter == 2) {
       Navigator.pop(context);
     }
   }
