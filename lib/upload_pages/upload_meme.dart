@@ -25,6 +25,7 @@ class _UploadMemeState extends State<UploadMeme> {
   final formKey = new GlobalKey<FormState>();
   TextEditingController captionController = new TextEditingController();
   TextEditingController tagController = new TextEditingController();
+  var c = 0;
 
   Future cropImage() async {
     File newCroppedImage = await ImageCropper.cropImage(
@@ -99,6 +100,12 @@ class _UploadMemeState extends State<UploadMeme> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    getImageFromGallery();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -124,19 +131,12 @@ class _UploadMemeState extends State<UploadMeme> {
 
   Widget buildBody() {
     if(selectedImage == null) {
+      incC();
       return Center(
         child: Column(
           children: <Widget>[
             Spacer(flex: 5,),
-            RaisedButton(
-              child: Text('Upload image from gallery'),
-              onPressed: getImageFromGallery, // TODO: link to upload from gallery function
-            ),
-            Spacer(flex: 1,),
-            RaisedButton(
-              child: Text('Upload image from camera'),
-              onPressed: getImageFromCamera,
-            ),
+            Text("Loading..."),
             Spacer(flex: 5,)
           ],
         ),
@@ -161,7 +161,7 @@ class _UploadMemeState extends State<UploadMeme> {
       );
     } else {
       return Center(
-        child: Column(
+        child: ListView(
           children: <Widget>[
             Image.file(croppedImage),
             Form(
@@ -219,5 +219,14 @@ class _UploadMemeState extends State<UploadMeme> {
     setState(() {
       selectedImage = image;
     });
+  }
+
+  void incC() {
+    setState(() {
+      c += 1;
+    });
+    if (c == 2) {
+      Navigator.pop(context);
+    }
   }
 }
